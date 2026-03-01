@@ -80,9 +80,7 @@ export const ContactStore = signalStore(
                   isLoading: false,
                   saveSuccess: true,
                 }));
-                toastr.success(
-                  `${savedContacts.length} contacts imported successfully`,
-                );
+                toastr.success(`${savedContacts.length} contacts imported successfully`);
               }),
               catchError((error) => {
                 toastr.error('Failed to import contacts');
@@ -94,7 +92,27 @@ export const ContactStore = signalStore(
         ),
       ),
 
-      removeContact: rxMethod<string>(),
+      removeContact: rxMethod<string>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true })),
+          switchMap((id) =>
+            contactService.deleteContact(id).pipe(
+              tap(() => {
+                patchState(store, (state) => ({
+                  contacts: state.contacts.filter((c) => c.id !== id),
+                  isLoading: false,
+                }));
+                toastr.success('Contact deleted successfully');
+              }),
+              catchError((error) => {
+                toastr.error('Failed to delete contact');
+                patchState(store, { isLoading: false });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
     }),
   ),
 );
