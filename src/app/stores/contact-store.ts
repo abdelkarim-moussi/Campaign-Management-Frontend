@@ -69,7 +69,32 @@ export const ContactStore = signalStore(
         ),
       ),
 
-      removeContact(id: string) {},
+      importContacts: rxMethod<Contact[]>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true })),
+          switchMap((contacts) =>
+            contactService.createContacts(contacts).pipe(
+              tap((savedContacts) => {
+                patchState(store, (state) => ({
+                  contacts: [...state.contacts, ...savedContacts],
+                  isLoading: false,
+                  saveSuccess: true,
+                }));
+                toastr.success(
+                  `${savedContacts.length} contacts imported successfully`,
+                );
+              }),
+              catchError((error) => {
+                toastr.error('Failed to import contacts');
+                patchState(store, { isLoading: false, saveSuccess: false });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      removeContact: rxMethod<string>(),
     }),
   ),
 );
