@@ -3,10 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { Contact } from '../../services/contact.service';
 import { ContactStore } from '../../stores/contact-store';
 import { CommonModule } from '@angular/common';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-contacts',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, ConfirmDialogComponent],
   templateUrl: './contacts.component.html',
   styleUrl: './contacts.component.css',
 })
@@ -15,6 +16,11 @@ export class ContactsComponent implements OnInit {
   searchQuery = '';
   groupFilter = '';
   showAddForm = false;
+  showDeleteConfirm = false;
+  deleteTargetId: string | null = null;
+
+  editingContactId: string | null = null;
+  editContact: Partial<Contact> = {};
 
   tagsInput = '';
 
@@ -98,9 +104,39 @@ export class ContactsComponent implements OnInit {
   }
 
   deleteContact(id: string): void {
-    this.contactStore.removeContact(id);
-    this.filteredContacts = this.contacts().filter((c) => c.id !== id);
-    this.filterContacts();
+    this.deleteTargetId = id;
+    this.showDeleteConfirm = true;
+  }
+
+  confirmDelete(): void {
+    if (this.deleteTargetId) {
+      this.contactStore.removeContact(this.deleteTargetId);
+    }
+    this.cancelDelete();
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm = false;
+    this.deleteTargetId = null;
+  }
+
+  startEdit(contact: Contact): void {
+    this.editingContactId = contact.id!;
+    this.editContact = { ...contact };
+  }
+
+  saveEdit(): void {
+    if (!this.editingContactId) return;
+    this.contactStore.updateContact({
+      id: this.editingContactId,
+      contact: this.editContact,
+    });
+    this.cancelEdit();
+  }
+
+  cancelEdit(): void {
+    this.editingContactId = null;
+    this.editContact = {};
   }
 
   onFileImport(event: Event): void {

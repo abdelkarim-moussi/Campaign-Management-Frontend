@@ -80,10 +80,37 @@ export const ContactStore = signalStore(
                   isLoading: false,
                   saveSuccess: true,
                 }));
-                toastr.success(`${savedContacts.length} contacts imported successfully`);
+                toastr.success(
+                  `${savedContacts.length} contacts imported successfully`,
+                );
               }),
               catchError((error) => {
                 toastr.error('Failed to import contacts');
+                patchState(store, { isLoading: false, saveSuccess: false });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
+      updateContact: rxMethod<{ id: string; contact: Partial<Contact> }>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true })),
+          switchMap(({ id, contact }) =>
+            contactService.updateContact(id, contact).pipe(
+              tap((updatedContact) => {
+                patchState(store, (state) => ({
+                  contacts: state.contacts.map((c) =>
+                    c.id === id ? updatedContact : c,
+                  ),
+                  isLoading: false,
+                  saveSuccess: true,
+                }));
+                toastr.success('Contact updated successfully');
+              }),
+              catchError((error) => {
+                toastr.error('Failed to update contact');
                 patchState(store, { isLoading: false, saveSuccess: false });
                 return EMPTY;
               }),

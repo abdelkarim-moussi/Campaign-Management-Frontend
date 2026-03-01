@@ -44,7 +44,7 @@ export class ContactService {
     return this.http.post<Contact[]>(`${environment.apiUrl}/contacts/import`, contacts);
   }
 
-  updateContact(id: number, contact: Partial<Contact>): Observable<Contact> {
+  updateContact(id: string, contact: Partial<Contact>): Observable<Contact> {
     return this.http.patch<Contact>(
       `${environment.apiUrl}/contacts/${id}`,
       contact,
