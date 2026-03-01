@@ -26,7 +26,7 @@ export interface Contact {
   providedIn: 'root',
 })
 export class ContactService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getContacts(): Observable<Contact[]> {
     return this.http.get<Contact[]>(`${environment.apiUrl}/contacts`);
@@ -40,6 +40,10 @@ export class ContactService {
     return this.http.post<Contact>(`${environment.apiUrl}/contacts`, contact);
   }
 
+  createContacts(contacts: Contact[]): Observable<Contact[]> {
+    return this.http.post<Contact[]>(`${environment.apiUrl}/contacts/import`, contacts);
+  }
+
   updateContact(id: number, contact: Partial<Contact>): Observable<Contact> {
     return this.http.patch<Contact>(
       `${environment.apiUrl}/contacts/${id}`,
@@ -47,7 +51,7 @@ export class ContactService {
     );
   }
 
-  deleteContact(id: number): Observable<void> {
+  deleteContact(id: string): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/contacts/${id}`);
   }
 }
