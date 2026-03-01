@@ -1,0 +1,48 @@
+<div>
+    <div class="mb-8">
+        <h1 class="text-2xl font-semibold text-text-dark">Dashboard</h1>
+        <p class="text-sm text-text-muted mt-1">Welcome to your campaign management overview</p>
+    </div>
+
+    <!-- Stats cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        @for (stat of stats; track stat.label) {
+        <div class="bg-surface border border-border p-5">
+            <p class="text-xs font-medium text-text-muted uppercase tracking-wider">{{ stat.label }}</p>
+            <p class="text-2xl font-bold text-text-dark mt-2">{{ stat.value }}</p>
+            <p class="text-xs mt-2" [class]="stat.positive ? 'text-accent' : 'text-danger'">
+                {{ stat.change }}
+            </p>
+        </div>
+        }
+    </div>
+
+    <!-- Placeholder sections -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-surface border border-border p-6">
+            <h3 class="text-sm font-semibold text-text-dark mb-4">Recent Campaigns</h3>
+            <div class="space-y-3">
+                @for (i of [1,2,3,4]; track i) {
+                <div class="flex items-center justify-between py-2 border-b border-border last:border-0">
+                    <div class="h-3 bg-primary-light w-40"></div>
+                    <div class="h-3 bg-primary-light w-16"></div>
+                </div>
+                }
+            </div>
+            <p class="text-xs text-text-muted mt-4 text-center">Campaign data will appear here</p>
+        </div>
+
+        <div class="bg-surface border border-border p-6">
+            <h3 class="text-sm font-semibold text-text-dark mb-4">Recent Activity</h3>
+            <div class="space-y-3">
+                @for (i of [1,2,3,4]; track i) {
+                <div class="flex items-center justify-between py-2 border-b border-border last:border-0">
+                    <div class="h-3 bg-primary-light w-48"></div>
+                    <div class="h-3 bg-primary-light w-12"></div>
+                </div>
+                }
+            </div>
+            <p class="text-xs text-text-muted mt-4 text-center">Activity data will appear here</p>
+        </div>
+    </div>
+</div>
