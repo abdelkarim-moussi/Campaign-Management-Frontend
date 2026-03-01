@@ -132,5 +132,22 @@ export class TemplatesComponent implements OnInit {
     this.editingTemplateId = null;
   }
 
-  
+  getStatusClass(status: TemplateStatus): string {
+    switch (status) {
+      case 'ACTIVE':
+        return 'bg-green-100 text-green-700';
+      case 'DRAFT':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'ARCHIVED':
+        return 'bg-gray-100 text-gray-500';
+      default:
+        return 'bg-border text-text-muted';
+    }
+  }
+
+  getTypeClass(type: TemplateType): string {
+    return type === 'EMAIL'
+      ? 'bg-primary/10 text-primary'
+      : 'bg-accent/20 text-accent';
+  }
 }
