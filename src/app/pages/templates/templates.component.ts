@@ -117,4 +117,10 @@ export class TemplatesComponent implements OnInit {
     this.showDeleteConfirm = false;
     this.deleteTargetId = null;
   }
+
+  activateTemplate(id: string): void {
+    this.templateStore.activateTemplate(id);
+  }
+
+  
 }
