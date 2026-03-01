@@ -100,4 +100,21 @@ export class TemplatesComponent implements OnInit {
     this.editingTemplateId = null;
     this.resetForm();
   }
+
+  deleteTemplate(id: string): void {
+    this.deleteTargetId = id;
+    this.showDeleteConfirm = true;
+  }
+
+  confirmDelete(): void {
+    if (this.deleteTargetId) {
+      this.templateStore.removeTemplate(this.deleteTargetId);
+    }
+    this.cancelDelete();
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm = false;
+    this.deleteTargetId = null;
+  }
 }
