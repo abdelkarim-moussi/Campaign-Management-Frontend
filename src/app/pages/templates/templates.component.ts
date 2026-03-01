@@ -126,5 +126,11 @@ export class TemplatesComponent implements OnInit {
     this.templateStore.archiveTemplate(id);
   }
 
+  resetForm(): void {
+    this.formData = { name: '', subject: '', content: '', type: 'EMAIL' };
+    this.showCreateForm = false;
+    this.editingTemplateId = null;
+  }
+
   
 }
