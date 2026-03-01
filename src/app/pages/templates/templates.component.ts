@@ -122,5 +122,9 @@ export class TemplatesComponent implements OnInit {
     this.templateStore.activateTemplate(id);
   }
 
+  archiveTemplate(id: string): void {
+    this.templateStore.archiveTemplate(id);
+  }
+
   
 }
