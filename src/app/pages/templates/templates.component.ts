@@ -68,5 +68,10 @@ export class TemplatesComponent implements OnInit {
         });
     }
 
-    
+    createTemplate(): void {
+        if (!this.formData.name || !this.formData.content) return;
+        this.templateStore.addTemplate(this.formData);
+    }
+
+   
 }
