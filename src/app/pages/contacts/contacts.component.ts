@@ -122,22 +122,17 @@ export class ContactsComponent implements OnInit {
       try {
         if (extension === 'json') {
           contacts = this.parseJson(content);
-          contacts.forEach((contact) => {
-            this.contactStore.addContact(contact);
-          });
         } else if (extension === 'csv') {
           contacts = this.parseCsv(content);
-          contacts.forEach((contact) => {
-            this.contactStore.addContact(contact);
-          });
-          console.log(contacts);
         } else if (extension === 'tsv') {
           contacts = this.parseTsv(content);
-          contacts.forEach((contact) => {
-            this.contactStore.addContact(contact);
-          });
         } else {
           alert('File Type Not Supported');
+          return;
+        }
+
+        if (contacts.length > 0) {
+          this.contactStore.importContacts(contacts);
         }
       } catch (e) {
         alert('Failed to parse file. Please check the format.');
