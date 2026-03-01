@@ -42,6 +42,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'templates',
+        loadComponent: () =>
+          import('./pages/templates/templates.component').then(
+            (m) => m.TemplatesComponent,
+          ),
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full',

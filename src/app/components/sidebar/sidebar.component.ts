@@ -13,6 +13,7 @@ export class SidebarComponent {
     { route: '/dashboard', label: 'Dashboard', icon: '&#x229E;', exact: true },
     { route: '/users', label: 'Users', icon: '&#x22A1;', exact: false },
     { route: '/contacts', label: 'Contacts', icon: '&#x229F;', exact: false },
+    { route: '/templates', label: 'Templates', icon: '&#x2756;', exact: false },
     { route: '/campaigns', label: 'Campaigns', icon: '&#x22A0;', exact: false },
     {
       route: '/email-marketing',
@@ -34,7 +35,7 @@ export class SidebarComponent {
     },
   ];
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   logout(): void {
     this.authService.logout();
