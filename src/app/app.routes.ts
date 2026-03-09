@@ -49,6 +49,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'campaigns',
+        loadComponent: () =>
+          import('./pages/campaigns/campaigns.component').then(
+            (m) => m.CampaignsComponent,
+          ),
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full',
