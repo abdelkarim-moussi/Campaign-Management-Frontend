@@ -79,7 +79,21 @@ export const CampaignStore = signalStore(
                                 );
                             }),
                             catchError((error) => {
-                                toastr.error('Failed to create campaign');
+                                const msg =
+                                    error?.error?.message ||
+                                    error?.error ||
+                                    '';
+                                if (
+                                    error?.status === 409 ||
+                                    (typeof msg === 'string' &&
+                                        msg.toLowerCase().includes('already exists'))
+                                ) {
+                                    toastr.error(
+                                        'A campaign with this name already exists',
+                                    );
+                                } else {
+                                    toastr.error('Failed to create campaign');
+                                }
                                 patchState(store, {
                                     isLoading: false,
                                     saveSuccess: false,
