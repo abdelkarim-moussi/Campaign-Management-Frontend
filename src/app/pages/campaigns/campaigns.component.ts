@@ -191,18 +191,20 @@ export class CampaignsComponent implements OnInit {
     getStatusClass(status: CampaignStatus): string {
         switch (status) {
             case 'DRAFT':
-                return 'status-draft';
+                return 'bg-yellow-100 text-yellow-700';
             case 'SCHEDULED':
-                return 'status-scheduled';
+                return 'bg-blue-100 text-blue-700';
             case 'SENT':
-                return 'status-sent';
+                return 'bg-green-100 text-green-700';
             default:
-                return 'status-default';
+                return 'bg-border text-text-muted';
         }
     }
 
     getChannelClass(channel: CampaignChannel): string {
-        return channel === 'EMAIL' ? 'channel-email' : 'channel-sms';
+        return channel === 'EMAIL'
+            ? 'bg-primary/10 text-primary'
+            : 'bg-accent/20 text-accent';
     }
 
     getTemplateName(templateId: number): string {
