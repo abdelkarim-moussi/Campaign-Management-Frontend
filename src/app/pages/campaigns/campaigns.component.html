@@ -146,81 +146,117 @@
         </select>
     </div>
 
-    <!-- Campaigns Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <!-- Campaigns List -->
+    <div class="flex flex-col gap-3">
         @for (campaign of filteredCampaigns; track campaign.id) {
-        <div class="bg-surface border border-border p-5 hover:shadow-md transition-shadow group">
-            <!-- Header -->
-            <div class="flex items-start justify-between mb-3">
-                <div class="flex-1 min-w-0 mr-3">
-                    <h3 class="text-sm font-semibold text-text-dark truncate">
-                        {{ campaign.name }}
-                    </h3>
-                    @if (campaign.objective) {
-                    <p class="text-xs text-text-muted mt-0.5 truncate">
-                        {{ campaign.objective }}
-                    </p>
-                    }
+        <div class="campaign-card bg-surface border border-border flex overflow-hidden hover:shadow-md transition-shadow"
+            [class.border-l-yellow-500]="campaign.status === 'DRAFT'"
+            [class.border-l-blue-500]="campaign.status === 'SCHEDULED'"
+            [class.border-l-green-600]="campaign.status === 'SENT'">
+
+            <!-- Left: Status Indicator Bar -->
+            <div class="w-1.5 shrink-0" [class.bg-yellow-400]="campaign.status === 'DRAFT'"
+                [class.bg-blue-500]="campaign.status === 'SCHEDULED'" [class.bg-green-500]="campaign.status === 'SENT'">
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 p-5 min-w-0">
+                <!-- Top Row: Name + Badges -->
+                <div class="flex items-center gap-3 mb-2">
+                    <!-- Channel Icon -->
+                    <div class="w-9 h-9 flex items-center justify-center shrink-0 text-lg" [class]="campaign.channel === 'EMAIL'
+                            ? 'bg-primary/10 text-primary'
+                            : 'bg-accent/20 text-accent'">
+                        {{ campaign.channel === 'EMAIL' ? '&#x2709;' : '&#x22B9;' }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-sm font-semibold text-text-dark truncate">
+                            {{ campaign.name }}
+                        </h3>
+                        @if (campaign.objective) {
+                        <p class="text-xs text-text-muted truncate mt-0.5">
+                            {{ campaign.objective }}
+                        </p>
+                        }
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span
+                            class="inline-block px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider rounded-full"
+                            [class]="getChannelClass(campaign.channel)">
+                            {{ campaign.channel }}
+                        </span>
+                        <span
+                            class="inline-block px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider rounded-full"
+                            [class]="getStatusClass(campaign.status)">
+                            {{ campaign.status }}
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 shrink-0">
-                    <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-sm"
-                        [class]="getChannelClass(campaign.channel)">
-                        {{ campaign.channel }}
-                    </span>
-                    <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-sm"
-                        [class]="getStatusClass(campaign.status)">
-                        {{ campaign.status }}
-                    </span>
+
+                <!-- Description -->
+                @if (campaign.description) {
+                <p class="text-xs text-text-muted leading-relaxed mb-3 line-clamp-2 pl-12">
+                    {{ campaign.description }}
+                </p>
+                }
+
+                <!-- Stats Row -->
+                <div class="flex items-center gap-6 pl-12 text-xs">
+                    <!-- Template -->
+                    <div class="flex items-center gap-1.5 text-text-muted">
+                        <span class="text-sm">&#x2756;</span>
+                        <span>{{ getTemplateName(campaign.templateId) }}</span>
+                    </div>
+                    <!-- Contacts -->
+                    <div class="flex items-center gap-1.5 text-text-muted">
+                        <span class="text-sm">&#x229F;</span>
+                        <span class="font-medium text-text-dark">{{ campaign.totalContacts ||
+                            campaign.campaignContacts?.length || 0 }}</span>
+                        <span>contacts</span>
+                    </div>
+                    <!-- Schedule -->
+                    @if (campaign.scheduledAt) {
+                    <div class="flex items-center gap-1.5 text-text-muted">
+                        <span class="text-sm">&#x23F0;</span>
+                        <span>{{ campaign.scheduledAt | date: "medium" }}</span>
+                    </div>
+                    }
+                    @if (campaign.sentAt) {
+                    <div class="flex items-center gap-1.5 text-green-600">
+                        <span class="text-sm">&#x2714;</span>
+                        <span>Sent {{ campaign.sentAt | date: "medium" }}</span>
+                    </div>
+                    }
+                    <!-- Created -->
+                    <div class="ml-auto text-text-muted/50">
+                        {{ campaign.createdAt | date: "mediumDate" }}
+                    </div>
                 </div>
             </div>
 
-            <!-- Description -->
-            @if (campaign.description) {
-            <p class="text-xs text-text-muted leading-relaxed mb-3 line-clamp-2">
-                {{ campaign.description }}
-            </p>
-            }
-
-            <!-- Info -->
-            <div class="flex items-center gap-4 mb-3 text-xs text-text-muted">
-                <span title="Template">&#x2756; {{ getTemplateName(campaign.templateId) }}</span>
-                <span title="Contacts">&#x229F; {{ campaign.totalContacts || campaign.campaignContacts?.length || 0 }}
-                    contacts</span>
-            </div>
-
-            @if (campaign.scheduledAt) {
-            <div class="text-xs text-text-muted mb-3">
-                &#x1F4C5; Scheduled: {{ campaign.scheduledAt | date: "medium" }}
-            </div>
-            }
-
-            <!-- Footer -->
-            <div class="flex items-center justify-between pt-3 border-t border-border">
-                <span class="text-[10px] text-text-muted/60">
-                    {{ campaign.createdAt | date: "mediumDate" }}
-                </span>
-                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    @if (campaign.status === 'DRAFT' || campaign.status === 'SCHEDULED') {
-                    <button (click)="startEdit(campaign)"
-                        class="text-[11px] text-text-muted hover:text-primary px-2 py-1 border border-border hover:border-primary transition-colors">
-                        Edit
-                    </button>
-                    }
-                    @if (campaign.status !== 'SENT') {
-                    <button (click)="sendCampaign(campaign.id!)"
-                        class="text-[11px] text-text-muted hover:text-green-600 px-2 py-1 border border-border hover:border-green-500 transition-colors">
-                        Send
-                    </button>
-                    }
-                    <button (click)="deleteCampaign(campaign.id!)"
-                        class="text-[11px] text-text-muted hover:text-danger px-2 py-1 border border-border hover:border-danger transition-colors">
-                        Delete
-                    </button>
-                </div>
+            <!-- Right: Actions -->
+            <div class="flex items-center gap-1 px-4 border-l border-border bg-primary-light/30">
+                @if (campaign.status === 'DRAFT' || campaign.status === 'SCHEDULED') {
+                <button (click)="startEdit(campaign)" title="Edit"
+                    class="w-8 h-8 flex items-center justify-center text-text-muted hover:text-primary hover:bg-primary-light transition-colors text-sm">
+                    &#x270E;
+                </button>
+                }
+                @if (campaign.status !== 'SENT') {
+                <button (click)="sendCampaign(campaign.id!)" title="Send"
+                    class="w-8 h-8 flex items-center justify-center text-text-muted hover:text-green-600 hover:bg-green-50 transition-colors text-sm">
+                    &#x27A4;
+                </button>
+                }
+                <button (click)="deleteCampaign(campaign.id!)" title="Delete"
+                    class="w-8 h-8 flex items-center justify-center text-text-muted hover:text-danger hover:bg-red-50 transition-colors text-sm">
+                    &#x2716;
+                </button>
             </div>
         </div>
         } @empty {
-        <div class="col-span-full py-16 text-center text-sm text-text-muted">
+        <div class="py-16 text-center text-sm text-text-muted bg-surface border border-border">
+            <div class="text-3xl mb-3 opacity-30">&#x22A0;</div>
             <p class="mb-1">No campaigns found</p>
             <p class="text-xs text-text-muted/60">
                 Create your first campaign to get started

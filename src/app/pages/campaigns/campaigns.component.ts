@@ -215,7 +215,7 @@ export class CampaignsComponent implements OnInit {
     getFilteredTemplates() {
         if (!this.formData.channel) return this.templates();
         return this.templates().filter(
-            (t) => t.type === this.formData.channel,
+            (t) => t.type === this.formData.channel && t.status === 'ACTIVE',
         );
     }
 }
