@@ -1,0 +1,254 @@
+@if (isLoading) {
+<div class="flex items-center justify-center py-20">
+    <div class="text-sm text-text-muted">Loading campaign...</div>
+</div>
+} @else if (campaign) {
+<div>
+    <!-- Back link + Header -->
+    <div class="mb-8">
+        <a routerLink="/campaigns"
+            class="inline-flex items-center gap-1 text-xs text-text-muted hover:text-primary transition-colors mb-4">
+            &larr; Back to Campaigns
+        </a>
+        <div class="flex items-start justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-1.5 h-14 rounded-full" [class]="getStatusColor()"></div>
+                <div>
+                    <h1 class="text-2xl font-semibold text-text-dark">{{ campaign.name }}</h1>
+                    <p class="text-sm text-text-muted mt-1">{{ campaign.description || 'No description' }}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full"
+                    [class]="getChannelBadge()">
+                    {{ campaign.channel }}
+                </span>
+                <span class="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full"
+                    [class]="getStatusBadge()">
+                    {{ campaign.status }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaign Info Row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-surface border border-border p-4">
+            <p class="text-xs text-text-muted uppercase tracking-wider mb-1">Objective</p>
+            <p class="text-sm font-medium text-text-dark">{{ campaign.objective || '—' }}</p>
+        </div>
+        <div class="bg-surface border border-border p-4">
+            <p class="text-xs text-text-muted uppercase tracking-wider mb-1">Created</p>
+            <p class="text-sm font-medium text-text-dark">{{ campaign.createdAt | date: 'mediumDate' }}</p>
+        </div>
+        <div class="bg-surface border border-border p-4">
+            <p class="text-xs text-text-muted uppercase tracking-wider mb-1">Scheduled</p>
+            <p class="text-sm font-medium text-text-dark">
+                {{ campaign.scheduledAt ? (campaign.scheduledAt | date: 'medium') : '—' }}
+            </p>
+        </div>
+        <div class="bg-surface border border-border p-4">
+            <p class="text-xs text-text-muted uppercase tracking-wider mb-1">Sent</p>
+            <p class="text-sm font-medium text-text-dark">
+                {{ campaign.sentAt ? (campaign.sentAt | date: 'medium') : '—' }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    @if (summary) {
+    <h2 class="text-lg font-semibold text-text-dark mb-4">Campaign Summary</h2>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <!-- Total Contacts -->
+        <div class="bg-surface border border-border p-5 text-center">
+            <p class="text-3xl font-bold text-primary mb-1">{{ summary.totalContacts }}</p>
+            <p class="text-xs text-text-muted uppercase tracking-wider">Total Contacts</p>
+        </div>
+        <!-- Sent -->
+        <div class="bg-surface border border-border p-5 text-center">
+            <p class="text-3xl font-bold text-blue-600 mb-1">{{ summary.sentCount }}</p>
+            <p class="text-xs text-text-muted uppercase tracking-wider">Sent</p>
+        </div>
+        <!-- Delivered -->
+        <div class="bg-surface border border-border p-5 text-center">
+            <p class="text-3xl font-bold text-green-600 mb-1">{{ summary.deliveredCount }}</p>
+            <p class="text-xs text-text-muted uppercase tracking-wider">Delivered</p>
+            @if (summary.sentCount) {
+            <div class="mt-2">
+                <div class="w-full bg-border h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-green-500 h-full rounded-full transition-all" [style.width.%]="getDeliveryRate()">
+                    </div>
+                </div>
+                <p class="text-[10px] text-text-muted mt-1">{{ getDeliveryRate() }}%</p>
+            </div>
+            }
+        </div>
+        <!-- Opened -->
+        <div class="bg-surface border border-border p-5 text-center">
+            <p class="text-3xl font-bold text-accent mb-1">{{ summary.openedCount }}</p>
+            <p class="text-xs text-text-muted uppercase tracking-wider">Opened</p>
+            @if (summary.deliveredCount) {
+            <div class="mt-2">
+                <div class="w-full bg-border h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-accent h-full rounded-full transition-all" [style.width.%]="getOpenRate()"></div>
+                </div>
+                <p class="text-[10px] text-text-muted mt-1">{{ getOpenRate() }}%</p>
+            </div>
+            }
+        </div>
+        <!-- Failed -->
+        <div class="bg-surface border border-border p-5 text-center">
+            <p class="text-3xl font-bold text-danger mb-1">{{ summary.failedCount }}</p>
+            <p class="text-xs text-text-muted uppercase tracking-wider">Failed</p>
+            @if (summary.sentCount) {
+            <div class="mt-2">
+                <div class="w-full bg-border h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-danger h-full rounded-full transition-all" [style.width.%]="getFailRate()"></div>
+                </div>
+                <p class="text-[10px] text-text-muted mt-1">{{ getFailRate() }}%</p>
+            </div>
+            }
+        </div>
+    </div>
+    }
+
+    <!-- Campaign Contacts -->
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-text-dark">
+            Campaign Contacts
+            <span class="text-sm font-normal text-text-muted ml-2">({{ campaignContacts.length }})</span>
+        </h2>
+        @if (campaign.status !== 'SENT') {
+        <button (click)="showAddContacts = !showAddContacts"
+            class="bg-primary text-white px-4 py-2 text-sm font-medium hover:bg-primary-hover transition-colors">
+            + Add Contacts
+        </button>
+        }
+    </div>
+
+    <!-- Add Contacts Panel -->
+    @if (showAddContacts) {
+    <div class="bg-surface border border-border p-5 mb-4">
+        <h3 class="text-sm font-semibold text-text-dark mb-3">
+            Select contacts to add
+            <span class="text-text-muted/50 font-normal ml-1">({{ selectedNewContactIds.length }} selected)</span>
+        </h3>
+        <div class="border border-border bg-surface max-h-48 overflow-y-auto p-2 mb-3">
+            @for (contact of getAvailableContacts(); track contact.id) {
+            <label
+                class="flex items-center gap-2 px-3 py-2 hover:bg-primary-light/50 cursor-pointer transition-colors text-sm">
+                <input type="checkbox" [checked]="isNewContactSelected(+contact.id!)"
+                    (change)="toggleNewContact(+contact.id!)" class="accent-primary" />
+                <span class="text-text-dark">{{ contact.firstName }} {{ contact.lastName }}</span>
+                <span class="text-text-muted text-xs ml-auto">{{ contact.email }}</span>
+            </label>
+            } @empty {
+            <p class="text-sm text-text-muted text-center py-4">All contacts are already in this campaign</p>
+            }
+        </div>
+        <div class="flex items-center gap-2">
+            <button (click)="addContacts()" [disabled]="selectedNewContactIds.length === 0"
+                class="bg-primary text-white px-4 py-2 text-sm font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Add {{ selectedNewContactIds.length }} Contact{{ selectedNewContactIds.length !== 1 ? 's' : '' }}
+            </button>
+            <button (click)="showAddContacts = false; selectedNewContactIds = []"
+                class="border border-border text-text-muted px-4 py-2 text-sm hover:bg-primary-light transition-colors">
+                Cancel
+            </button>
+        </div>
+    </div>
+    }
+
+    <!-- Contacts Table -->
+    <div class="bg-surface border border-border overflow-hidden">
+        <table class="w-full">
+            <thead>
+                <tr class="bg-primary-light border-b border-border">
+                    <th class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3">
+                        Contact
+                    </th>
+                    <th class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3">
+                        Email
+                    </th>
+                    <th class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3">
+                        Status
+                    </th>
+                    <th class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3">
+                        Sent At
+                    </th>
+                    <th class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3">
+                        Delivered At
+                    </th>
+                    <th class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3">
+                        Opened At
+                    </th>
+                    @if (campaign.status !== 'SENT') {
+                    <th class="text-right text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3">
+                        Actions
+                    </th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (cc of campaignContacts; track cc.id) {
+                <tr class="border-b border-border hover:bg-primary-light/50 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-8 h-8 bg-accent flex items-center justify-center text-white text-xs font-semibold">
+                                {{ getContactName(cc.contactId).charAt(0).toUpperCase() }}
+                            </div>
+                            <span class="text-sm font-medium text-text-dark">
+                                {{ getContactName(cc.contactId) }}
+                            </span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-text-muted">
+                        {{ getContactEmail(cc.contactId) }}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span
+                            class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-sm"
+                            [class]="cc.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
+                                     cc.status === 'OPENED' ? 'bg-accent/20 text-accent' :
+                                     cc.status === 'FAILED' ? 'bg-red-100 text-danger' :
+                                     cc.status === 'SENT' ? 'bg-blue-100 text-blue-700' :
+                                     'bg-border text-text-muted'">
+                            {{ cc.status || 'PENDING' }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-text-muted">
+                        {{ cc.sentAt ? (cc.sentAt | date: 'medium') : '—' }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-text-muted">
+                        {{ cc.deliveredAt ? (cc.deliveredAt | date: 'medium') : '—' }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-text-muted">
+                        {{ cc.openedAt ? (cc.openedAt | date: 'medium') : '—' }}
+                    </td>
+                    @if (campaign.status !== 'SENT') {
+                    <td class="px-6 py-4 text-right">
+                        <button (click)="removeContact(cc.contactId)"
+                            class="text-xs text-text-muted hover:text-danger px-2 py-1 border border-border hover:border-danger transition-colors">
+                            Remove
+                        </button>
+                    </td>
+                    }
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-sm text-text-muted">
+                        No contacts in this campaign yet
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Remove Confirmation Dialog -->
+    <app-confirm-dialog [isOpen]="showRemoveConfirm" title="Remove Contact"
+        message="Are you sure you want to remove this contact from the campaign?" confirmText="Remove"
+        (confirmed)="confirmRemove()" (cancelled)="cancelRemove()" />
+</div>
+}
