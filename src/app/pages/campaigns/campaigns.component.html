@@ -191,7 +191,8 @@
                         {{ campaign.channel === 'EMAIL' ? '&#x2709;' : '&#x22B9;' }}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <h3 class="text-sm font-semibold text-text-dark truncate">
+                        <h3 class="text-sm font-semibold text-text-dark truncate cursor-pointer hover:text-primary transition-colors"
+                            (click)="viewCampaign(campaign.id!)">
                             {{ campaign.name }}
                         </h3>
                         @if (campaign.objective) {

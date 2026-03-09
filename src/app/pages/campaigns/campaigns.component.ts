@@ -1,6 +1,7 @@
 import { Component, effect, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
     Campaign,
     CampaignChannel,
@@ -53,6 +54,8 @@ export class CampaignsComponent implements OnInit {
     readonly campaigns = this.campaignStore.campaigns;
     readonly templates = this.templateStore.templates;
     readonly contacts = this.contactStore.contacts;
+
+    private router = inject(Router);
 
     constructor() {
         effect(() => {
@@ -240,5 +243,9 @@ export class CampaignsComponent implements OnInit {
         return this.templates().filter(
             (t) => t.type === this.formData.channel && t.status === 'ACTIVE',
         );
+    }
+
+    viewCampaign(id: number): void {
+        this.router.navigate(['/campaigns', id]);
     }
 }
