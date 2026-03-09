@@ -34,6 +34,7 @@ export class CampaignsComponent implements OnInit {
     sendTargetId: number | null = null;
 
     selectedContactIds: number[] = [];
+    formSubmitted = false;
 
     formData: CampaignDto = {
         name: '',
@@ -89,7 +90,8 @@ export class CampaignsComponent implements OnInit {
     }
 
     createCampaign(): void {
-        if (!this.formData.name || !this.formData.templateId) return;
+        this.formSubmitted = true;
+        if (!this.isFormValid()) return;
         this.formData.contactIds = this.selectedContactIds;
         this.campaignStore.addCampaign(this.formData);
     }
@@ -112,7 +114,8 @@ export class CampaignsComponent implements OnInit {
     }
 
     saveEdit(): void {
-        if (!this.editingCampaignId || !this.formData.name) return;
+        this.formSubmitted = true;
+        if (!this.editingCampaignId || !this.isFormValid()) return;
         this.formData.contactIds = this.selectedContactIds;
         this.campaignStore.updateCampaign({
             id: this.editingCampaignId,
@@ -186,6 +189,26 @@ export class CampaignsComponent implements OnInit {
         this.selectedContactIds = [];
         this.showCreateForm = false;
         this.editingCampaignId = null;
+        this.formSubmitted = false;
+    }
+
+    isFormValid(): boolean {
+        return (
+            !!this.formData.name.trim() &&
+            !!this.formData.templateId &&
+            this.selectedContactIds.length > 0 &&
+            !this.isDuplicateName()
+        );
+    }
+
+    isDuplicateName(): boolean {
+        const name = this.formData.name.trim().toLowerCase();
+        if (!name) return false;
+        return this.campaigns().some(
+            (c) =>
+                c.name.toLowerCase() === name &&
+                c.id !== this.editingCampaignId,
+        );
     }
 
     getStatusClass(status: CampaignStatus): string {
