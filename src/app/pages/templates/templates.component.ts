@@ -9,10 +9,11 @@ import {
 } from '../../services/template.service';
 import { TemplateStore } from '../../stores/template-store';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { QuillModule } from 'ngx-quill';
 
 @Component({
   selector: 'app-templates',
-  imports: [FormsModule, CommonModule, ConfirmDialogComponent],
+  imports: [FormsModule, CommonModule, ConfirmDialogComponent, QuillModule],
   templateUrl: './templates.component.html',
   styleUrl: './templates.component.css',
 })
@@ -33,6 +34,18 @@ export class TemplatesComponent implements OnInit {
     subject: '',
     content: '',
     type: 'EMAIL',
+  };
+
+  quillModules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ color: [] }, { background: [] }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ align: [] }],
+      ['link', 'image'],
+      ['clean'],
+    ],
   };
 
   readonly templateStore = inject(TemplateStore);

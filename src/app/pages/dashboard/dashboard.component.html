@@ -1,48 +1,208 @@
 <div>
-    <div class="mb-8">
-        <h1 class="text-2xl font-semibold text-text-dark">Dashboard</h1>
-        <p class="text-sm text-text-muted mt-1">Welcome to your campaign management overview</p>
+  <!-- Header -->
+  <div class="mb-8 flex items-end justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-text-dark">Dashboard</h1>
+      <p class="text-sm text-text-muted mt-1">
+        Welcome to your campaign management overview
+      </p>
+    </div>
+    <a routerLink="/analytics"
+      class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-primary border border-primary hover:bg-primary hover:text-white transition-colors">
+      View Full Analytics &#x2192;
+    </a>
+  </div>
+
+  @if (isLoading) {
+  <div class="flex items-center justify-center py-20">
+    <div class="text-sm text-text-muted animate-pulse">Loading dashboard...</div>
+  </div>
+  } @else if (dashboard) {
+
+  <!-- Primary KPI Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <!-- Total Campaigns -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-icon stat-icon-blue">&#x229E;</span>
+        <span class="stat-badge stat-badge-accent">{{ dashboard.campaignsThisMonth }} this month</span>
+      </div>
+      <p class="stat-value">{{ dashboard.totalCampaigns }}</p>
+      <p class="stat-label">Total Campaigns</p>
     </div>
 
-    <!-- Stats cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        @for (stat of stats; track stat.label) {
-        <div class="bg-surface border border-border p-5">
-            <p class="text-xs font-medium text-text-muted uppercase tracking-wider">{{ stat.label }}</p>
-            <p class="text-2xl font-bold text-text-dark mt-2">{{ stat.value }}</p>
-            <p class="text-xs mt-2" [class]="stat.positive ? 'text-accent' : 'text-danger'">
-                {{ stat.change }}
-            </p>
+    <!-- Messages Sent -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-icon stat-icon-green">&#x2709;</span>
+        <span class="stat-badge stat-badge-blue">{{ dashboard.messagesSentToday }} today</span>
+      </div>
+      <p class="stat-value">{{ dashboard.totalMessagesSent }}</p>
+      <p class="stat-label">Messages Sent</p>
+    </div>
+
+    <!-- Avg Open Rate -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-icon stat-icon-accent">&#x25C9;</span>
+      </div>
+      <p class="stat-value text-accent">{{ dashboard.averageOpenRate.toFixed(1) }}<span class="text-lg">%</span></p>
+      <p class="stat-label">Avg. Open Rate</p>
+      <div class="stat-bar-container">
+        <div class="stat-bar bg-accent" [style.width.%]="dashboard.averageOpenRate"></div>
+      </div>
+    </div>
+
+    <!-- Avg Delivery Rate -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-icon stat-icon-green">&#x2713;</span>
+      </div>
+      <p class="stat-value text-green-600">{{ dashboard.averageDeliveryRate.toFixed(1) }}<span class="text-lg">%</span>
+      </p>
+      <p class="stat-label">Avg. Delivery Rate</p>
+      <div class="stat-bar-container">
+        <div class="stat-bar bg-green-500" [style.width.%]="dashboard.averageDeliveryRate"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+    <!-- Doughnut Chart -->
+    <div class="lg:col-span-2 chart-card">
+      <h3 class="chart-title">Message Breakdown</h3>
+      <div class="chart-container-doughnut">
+        <canvas baseChart [data]="doughnutData" [options]="doughnutOptions" type="doughnut">
+        </canvas>
+        <div class="doughnut-center">
+          <p class="text-2xl font-bold text-text-dark">{{ dashboard.totalMessagesSent }}</p>
+          <p class="text-[10px] text-text-muted uppercase tracking-wider">Total</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="lg:col-span-3 chart-card">
+      <h3 class="chart-title">Campaign Performance</h3>
+      <div class="chart-container-bar">
+        <canvas baseChart [data]="barData" [options]="barOptions" type="bar">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats Strip -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+    <div class="quick-stat">
+      <span class="quick-stat-dot bg-green-500"></span>
+      <div>
+        <p class="quick-stat-value">{{ dashboard.totalMessagesDelivered }}</p>
+        <p class="quick-stat-label">Delivered</p>
+      </div>
+    </div>
+    <div class="quick-stat">
+      <span class="quick-stat-dot bg-accent"></span>
+      <div>
+        <p class="quick-stat-value">{{ dashboard.totalMessagesOpened }}</p>
+        <p class="quick-stat-label">Opened</p>
+      </div>
+    </div>
+    <div class="quick-stat">
+      <span class="quick-stat-dot bg-purple-500"></span>
+      <div>
+        <p class="quick-stat-value">{{ dashboard.totalMessagesClicked }}</p>
+        <p class="quick-stat-label">Clicked</p>
+      </div>
+    </div>
+    <div class="quick-stat">
+      <span class="quick-stat-dot bg-blue-500"></span>
+      <div>
+        <p class="quick-stat-value">{{ dashboard.averageClickRate.toFixed(1) }}%</p>
+        <p class="quick-stat-label">Avg Click Rate</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Section: Recent Campaigns + Activity -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Recent Campaigns -->
+    <div class="list-card">
+      <div class="list-card-header">
+        <h3 class="chart-title">Recent Campaigns</h3>
+        <a routerLink="/campaigns" class="text-xs text-primary hover:underline">View all</a>
+      </div>
+      <div class="divide-y divide-border">
+        @if (recentCampaigns.length > 0) {
+        @for (campaign of recentCampaigns; track campaign.campaignId) {
+        <div class="campaign-row">
+          <div class="campaign-row-left">
+            <div class="campaign-avatar">
+              {{ campaign.campaignName.charAt(0).toUpperCase() }}
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-text-dark truncate" title="{{ campaign.campaignName }}">
+                {{ campaign.campaignName }}
+              </p>
+              <p class="text-xs text-text-muted">
+                {{ campaign.totalRecipients }} recipients · {{ campaign.openRate | number: "1.1-1" }}% open rate
+              </p>
+            </div>
+          </div>
+          <div class="campaign-row-stats">
+            <div class="text-right">
+              <p class="text-sm font-semibold text-text-dark">{{ campaign.totalSent }}</p>
+              <p class="text-[10px] text-text-muted uppercase">sent</p>
+            </div>
+            <div class="mini-bar-container">
+              <div class="mini-bar bg-green-500" [style.width.%]="campaign.deliveryRate"></div>
+            </div>
+          </div>
         </div>
         }
+        } @else {
+        <div class="text-sm text-text-muted text-center py-10">
+          No recent campaigns available.
+        </div>
+        }
+      </div>
     </div>
 
-    <!-- Placeholder sections -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div class="bg-surface border border-border p-6">
-            <h3 class="text-sm font-semibold text-text-dark mb-4">Recent Campaigns</h3>
-            <div class="space-y-3">
-                @for (i of [1,2,3,4]; track i) {
-                <div class="flex items-center justify-between py-2 border-b border-border last:border-0">
-                    <div class="h-3 bg-primary-light w-40"></div>
-                    <div class="h-3 bg-primary-light w-16"></div>
-                </div>
-                }
+    <!-- Recent Activity -->
+    <div class="list-card">
+      <div class="list-card-header">
+        <h3 class="chart-title">Recent Activity</h3>
+      </div>
+      <div class="divide-y divide-border">
+        @if (recentActivity.length > 0) {
+        @for (activity of recentActivity; track activity.id) {
+        <div class="activity-row">
+          <div class="flex items-center gap-3">
+            <span class="event-badge" [class]="getEventTypeClass(activity.eventType)">
+              {{ activity.eventType }}
+            </span>
+            <div>
+              <p class="text-sm text-text-dark">
+                Message #{{ activity.messageId }}
+              </p>
+              <p class="text-xs text-text-muted">
+                Contact #{{ activity.contactId }}
+              </p>
             </div>
-            <p class="text-xs text-text-muted mt-4 text-center">Campaign data will appear here</p>
+          </div>
+          <p class="text-xs text-text-muted whitespace-nowrap">
+            {{ activity.eventAt | date: "short" }}
+          </p>
         </div>
-
-        <div class="bg-surface border border-border p-6">
-            <h3 class="text-sm font-semibold text-text-dark mb-4">Recent Activity</h3>
-            <div class="space-y-3">
-                @for (i of [1,2,3,4]; track i) {
-                <div class="flex items-center justify-between py-2 border-b border-border last:border-0">
-                    <div class="h-3 bg-primary-light w-48"></div>
-                    <div class="h-3 bg-primary-light w-12"></div>
-                </div>
-                }
-            </div>
-            <p class="text-xs text-text-muted mt-4 text-center">Activity data will appear here</p>
+        }
+        } @else {
+        <div class="text-sm text-text-muted text-center py-10">
+          No recent activity available.
         </div>
+        }
+      </div>
     </div>
+  </div>
+
+  }
 </div>

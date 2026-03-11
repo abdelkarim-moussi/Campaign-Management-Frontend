@@ -8,6 +8,11 @@ import {
     CampaignService,
     CampaignSummaryDto,
 } from '../../services/campaign.service';
+import {
+    AnalyticsService,
+    PerformanceMetricsDto,
+    MessageTrackingDto,
+} from '../../services/analytics.service';
 import { Contact } from '../../services/contact.service';
 import { ContactStore } from '../../stores/contact-store';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
@@ -36,9 +41,14 @@ export class CampaignDetailComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private campaignService = inject(CampaignService);
+    private analyticsService = inject(AnalyticsService);
     private toastr = inject(ToastrService);
     readonly contactStore = inject(ContactStore);
     readonly allContacts = this.contactStore.contacts;
+
+    performanceMetrics: PerformanceMetricsDto[] = [];
+    campaignTracking: MessageTrackingDto[] = [];
+    isPerformanceLoading = false;
 
     ngOnInit(): void {
         const idParam = this.route.snapshot.paramMap.get('id');
@@ -58,6 +68,7 @@ export class CampaignDetailComponent implements OnInit {
                 this.campaign = campaign;
                 this.loadSummary();
                 this.loadContacts();
+                this.loadPerformance();
             },
             error: () => {
                 this.toastr.error('Campaign not found');
@@ -230,5 +241,66 @@ export class CampaignDetailComponent implements OnInit {
         return Math.round(
             (this.summary.failedCount / this.summary.sentCount) * 100,
         );
+    }
+
+    loadPerformance(): void {
+        this.isPerformanceLoading = true;
+        this.analyticsService.getCampaignMetrics(this.campaignId).subscribe({
+            next: (metrics) => {
+                this.performanceMetrics = metrics;
+                this.isPerformanceLoading = false;
+            },
+            error: () => {
+                this.isPerformanceLoading = false;
+            },
+        });
+        this.analyticsService.getCampaignTracking(this.campaignId).subscribe({
+            next: (tracking) => {
+                this.campaignTracking = tracking
+                    .slice()
+                    .sort((a, b) =>
+                        new Date(b.eventAt).getTime() - new Date(a.eventAt).getTime()
+                    )
+                    .slice(0, 20);
+            },
+            error: () => {
+                // silently fail
+            },
+        });
+    }
+
+    getMetricColor(metric: string): string {
+        switch (metric) {
+            case 'Send': return 'bg-blue-500';
+            case 'Delivered': return 'bg-green-500';
+            case 'Opened': return 'bg-accent';
+            case 'Clicked': return 'bg-purple-500';
+            case 'Failed': return 'bg-danger';
+            default: return 'bg-border';
+        }
+    }
+
+    getMetricTextColor(metric: string): string {
+        switch (metric) {
+            case 'Send': return 'text-blue-600';
+            case 'Delivered': return 'text-green-600';
+            case 'Opened': return 'text-accent';
+            case 'Clicked': return 'text-purple-600';
+            case 'Failed': return 'text-danger';
+            default: return 'text-text-muted';
+        }
+    }
+
+    getEventTypeClass(eventType: string): string {
+        switch (eventType) {
+            case 'SENT': return 'bg-blue-100 text-blue-700';
+            case 'DELIVERED': return 'bg-green-100 text-green-700';
+            case 'OPENED': return 'bg-accent/20 text-accent';
+            case 'CLICKED': return 'bg-purple-100 text-purple-700';
+            case 'BOUNCED': return 'bg-red-100 text-danger';
+            case 'UNSUBSCRIBED': return 'bg-yellow-100 text-yellow-700';
+            case 'SPAM_COMPLAINT': return 'bg-red-200 text-red-800';
+            default: return 'bg-border text-text-muted';
+        }
     }
 }

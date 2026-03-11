@@ -5,3 +5,35 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
+/* Quill editor full width */
+:host ::ng-deep quill-editor {
+    display: block;
+    width: 100%;
+}
+
+:host ::ng-deep .ql-toolbar {
+    width: 100%;
+    border-color: var(--color-border) !important;
+}
+
+:host ::ng-deep .ql-container {
+    width: 100%;
+    border-color: var(--color-border) !important;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Template preview iframe */
+.template-preview-frame {
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+    background: #fff;
+}
+
+.template-preview-frame iframe {
+    display: block;
+    transform-origin: top left;
+    transform: scale(0.75);
+    width: 133.33%;
+    height: 187px;
+}

@@ -1,0 +1,50 @@
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+
+/* Accent bar on stat cards */
+.stat-accent-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--color-primary);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.group:hover .stat-accent-bar {
+    transform: scaleX(1);
+}
+
+/* Chart containers */
+.chart-doughnut-wrapper {
+    position: relative;
+    max-width: 260px;
+    margin: 0 auto;
+}
+
+.chart-doughnut-center {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.chart-bar-wrapper {
+    height: 280px;
+}

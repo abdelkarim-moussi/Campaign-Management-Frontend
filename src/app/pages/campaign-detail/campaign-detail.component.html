@@ -112,6 +112,68 @@
     </div>
     }
 
+    <!-- Performance Analytics -->
+    @if (performanceMetrics.length > 0 || campaignTracking.length > 0) {
+    <h2 class="text-lg font-semibold text-text-dark mb-4">Performance Analytics</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+        <!-- Performance Funnel -->
+        @if (performanceMetrics.length > 0) {
+        <div class="bg-surface border border-border p-6">
+            <h3 class="text-sm font-semibold text-text-dark mb-5">Performance Funnel</h3>
+            <div class="space-y-4">
+                @for (metric of performanceMetrics; track metric.metric) {
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-sm font-medium" [class]="getMetricTextColor(metric.metric)">
+                            {{ metric.metric }}
+                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-text-dark">{{ metric.count }}</span>
+                            <span class="text-xs text-text-muted">({{ metric.percentage.toFixed(1) }}%)</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-border h-3 overflow-hidden">
+                        <div class="h-full transition-all duration-700 ease-out" [class]="getMetricColor(metric.metric)"
+                            [style.width.%]="metric.percentage">
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- Tracking Events -->
+        @if (campaignTracking.length > 0) {
+        <div class="bg-surface border border-border p-6">
+            <h3 class="text-sm font-semibold text-text-dark mb-5">Recent Tracking Events</h3>
+            <div class="space-y-2 max-h-[350px] overflow-y-auto pr-2">
+                @for (event of campaignTracking; track event.id) {
+                <div class="flex items-center justify-between py-2.5 border-b border-border last:border-0">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
+                            [class]="getEventTypeClass(event.eventType)">
+                            {{ event.eventType }}
+                        </span>
+                        <p class="text-xs text-text-dark">
+                            Message #{{ event.messageId }} · Contact #{{ event.contactId }}
+                        </p>
+                    </div>
+                    <p class="text-xs text-text-muted whitespace-nowrap">
+                        {{ event.eventAt | date: 'short' }}
+                    </p>
+                </div>
+                }
+            </div>
+        </div>
+        }
+    </div>
+    } @else if (isPerformanceLoading) {
+    <div class="flex items-center justify-center py-8 mb-8">
+        <div class="text-sm text-text-muted animate-pulse">Loading performance data...</div>
+    </div>
+    }
+
     <!-- Campaign Contacts -->
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-text-dark">

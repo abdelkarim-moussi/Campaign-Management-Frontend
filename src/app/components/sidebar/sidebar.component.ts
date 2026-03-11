@@ -11,6 +11,7 @@ import { AuthService } from '../../services/auth.service';
 export class SidebarComponent {
   navItems = [
     { route: '/dashboard', label: 'Dashboard', icon: '&#x229E;', exact: true },
+    { route: '/analytics', label: 'Analytics', icon: '&#x2261;', exact: false },
     { route: '/users', label: 'Users', icon: '&#x22A1;', exact: false },
     { route: '/contacts', label: 'Contacts', icon: '&#x229F;', exact: false },
     { route: '/templates', label: 'Templates', icon: '&#x2756;', exact: false },
