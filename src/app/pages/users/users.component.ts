@@ -1,8 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { UserStore } from '../../stores/user.store';
+import { User, UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import { UserStore } from '../../stores/user.store';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
@@ -10,53 +11,76 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
   standalone: true,
   imports: [FormsModule, CommonModule, ConfirmDialogComponent],
   templateUrl: './users.component.html',
-  styleUrl: './users.component.css'
+  styleUrl: './users.component.css',
 })
 export class UsersComponent implements OnInit {
+  searchQuery = signal('');
+  roleFilter = signal('');
+  showAddForm = false;
+  showInviteForm = false;
+  showDeleteConfirm = false;
+  showRoleConfirm = false;
+  deleteTargetId: number | null = null;
+  roleUpdateTarget: { userId: number, role: string } | null = null;
+  
+  newUser: Partial<User> = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    role: 'MEMBER',
+  };
+
+  newInvite = {
+    email: '',
+    role: 'MEMBER',
+  };
+
+  currentUser: any = null;
   readonly userStore = inject(UserStore);
   readonly authService = inject(AuthService);
 
-  searchQuery = '';
-  roleFilter = '';
-  showInviteForm = false;
+  filteredUsers = computed(() => {
+    const users = this.userStore.users();
+    const query = this.searchQuery().toLowerCase();
+    const role = this.roleFilter();
 
-  newInvite = { email: '', role: 'USER' };
+    return users.filter((user) => {
+      const name = this.getDisplayName(user).toLowerCase();
+      const matchesSearch =
+        !query ||
+        name.includes(query) ||
+        user.email.toLowerCase().includes(query);
+      const matchesRole = !role || user.role === role;
+      return matchesSearch && matchesRole;
+    });
+  });
 
-  showDeleteConfirm = false;
-  deleteTargetId: number | null = null;
-
-  currentUser = this.authService.getUser();
+  constructor() {}
 
   ngOnInit(): void {
+    this.currentUser = this.authService.getUser();
     this.userStore.loadUsers();
   }
 
-  get filteredUsers() {
-    return this.userStore.users().filter(user => {
-      const matchesSearch = !this.searchQuery ||
-        user.fullName?.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(this.searchQuery.toLowerCase());
-      const matchesRole = !this.roleFilter || user.role === this.roleFilter;
-      return matchesSearch && matchesRole;
-    });
+  getDisplayName(user: User): string {
+    if (user.fullName) return user.fullName;
+    if (user.name) return user.name;
+    const first = user.firstName || '';
+    const last = user.lastName || '';
+    return `${first} ${last}`.trim() || user.email;
   }
 
   inviteUser(): void {
     if (!this.newInvite.email || !this.newInvite.role) return;
 
     this.userStore.inviteUser({
-      request: { email: this.newInvite.email, role: this.newInvite.role },
+      request: this.newInvite,
       onSuccess: () => {
-        this.newInvite = { email: '', role: 'USER' };
+        this.newInvite = { email: '', role: 'MEMBER' };
         this.showInviteForm = false;
-        // Optionally reload users since DTO isn't returned for newly invited immediately
         this.userStore.loadUsers();
       }
     });
-  }
-
-  updateRole(userId: number, newRole: string): void {
-    this.userStore.updateUserRole({ userId, role: newRole });
   }
 
   confirmDelete(id: number): void {
@@ -65,22 +89,39 @@ export class UsersComponent implements OnInit {
   }
 
   deleteUser(): void {
-    if (this.deleteTargetId) {
-      this.userStore.deleteUser(this.deleteTargetId);
-      this.deleteTargetId = null;
-      this.showDeleteConfirm = false;
-    }
+    if (!this.deleteTargetId) return;
+    this.userStore.deleteUser(this.deleteTargetId);
+    this.cancelDelete();
   }
 
   cancelDelete(): void {
-    this.deleteTargetId = null;
     this.showDeleteConfirm = false;
+    this.deleteTargetId = null;
   }
 
-  canManageUser(targetRole: string): boolean {
-    if (!this.currentUser) return false;
-    if (this.currentUser.role === 'OWNER') return true;
-    if (this.currentUser.role === 'ADMIN' && targetRole !== 'OWNER' && targetRole !== 'ADMIN') return true;
+  canManageUser(user: User): boolean {
+    const meRole = this.currentUser?.role || 'MEMBER';
+    if (meRole === 'OWNER') return true;
+    if (meRole === 'ADMIN') {
+        // Admins can't delete Owners
+        return user.role !== 'OWNER';
+    }
     return false;
+  }
+
+  updateRole(userId: number, role: string): void {
+    this.roleUpdateTarget = { userId, role };
+    this.showRoleConfirm = true;
+  }
+
+  confirmRoleUpdate(): void {
+    if (!this.roleUpdateTarget) return;
+    this.userStore.updateUserRole(this.roleUpdateTarget);
+    this.cancelRoleUpdate();
+  }
+
+  cancelRoleUpdate(): void {
+    this.showRoleConfirm = false;
+    this.roleUpdateTarget = null;
   }
 }

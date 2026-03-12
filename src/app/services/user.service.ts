@@ -3,58 +3,72 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 
+export interface User {
+  id: number;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  email: string;
+  role: string;
+  status: string;
+  createdAt: string;
+  organizationId?: number;
+}
+
+export type UserDto = User;
+
 export interface InviteUserRequest {
-    email: string;
-    role: string;
-}
-
-export interface UpdateProfileRequest {
-    firstName: string;
-    lastName: string;
-}
-
-export interface UserDto {
-    id: number;
-    email: string;
-    firstName: string;
-    lastName: string;
-    fullName: string;
-    role: string;
-    status: string;
-    avatarUrl?: string;
-    emailVerified: boolean;
-    lastLoginAt?: string;
-    createdAt: string;
+  email: string;
+  role: string;
 }
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
-    // Use /api/users to match the backend controller mapping
-    private readonly API_URL = `${environment.apiUrl.replace('/api/v1', '/api')}/users`;
+  private readonly API_URL = `${environment.apiUrl}/users`;
 
-    constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-    getOrganizationUsers(): Observable<UserDto[]> {
-        return this.http.get<UserDto[]>(this.API_URL);
-    }
+  getUsers(): Observable<User[]> {
+    return this.http.get<User[]>(this.API_URL);
+  }
 
-    inviteUser(request: InviteUserRequest): Observable<any> {
-        return this.http.post<any>(`${this.API_URL}/invite`, request);
-    }
+  getOrganizationUsers(): Observable<User[]> {
+    return this.http.get<User[]>(this.API_URL);
+  }
 
-    updateUserRole(userId: number, role: string): Observable<UserDto> {
-        return this.http.patch<UserDto>(`${this.API_URL}/${userId}/role`, null, {
-            params: { role }
-        });
-    }
+  getUser(id: number): Observable<User> {
+    return this.http.get<User>(`${this.API_URL}/${id}`);
+  }
 
-    deleteUser(userId: number): Observable<void> {
-        return this.http.delete<void>(`${this.API_URL}/${userId}`);
-    }
+  inviteUser(request: { email: string; role: string }): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/invite`, request);
+  }
 
-    updateProfile(request: UpdateProfileRequest): Observable<UserDto> {
-        return this.http.put<UserDto>(`${this.API_URL}/me`, request);
-    }
+  updateUserRole(id: number, role: string): Observable<User> {
+    return this.http.patch<User>(`${this.API_URL}/${id}/role`, null, {
+      params: { role },
+    });
+  }
+
+  updateProfile(payload: {
+    firstName: string;
+    lastName: string;
+  }): Observable<User> {
+    return this.http.put<User>(`${this.API_URL}/me`, payload);
+  }
+
+  createUser(user: Partial<User>): Observable<User> {
+    return this.http.post<User>(this.API_URL, user);
+  }
+
+  updateUser(id: number, user: Partial<User>): Observable<User> {
+    return this.http.put<User>(`${this.API_URL}/${id}`, user);
+  }
+
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${id}`);
+  }
 }

@@ -1,151 +1,254 @@
 <div>
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-        <div>
-            <h1 class="text-2xl font-semibold text-text-dark">Team Members</h1>
-            <p class="text-sm text-text-muted mt-1">Manage users in your organization</p>
-        </div>
-        @if (currentUser?.role === 'OWNER' || currentUser?.role === 'ADMIN') {
-        <button (click)="showInviteForm = !showInviteForm"
-            class="bg-primary text-white px-5 py-2.5 text-sm font-medium hover:bg-primary-hover transition-colors">
-            + Invite User
-        </button>
-        }
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-semibold text-text-dark">Team Members</h1>
+      <p class="text-sm text-text-muted mt-1">
+        Manage users in your organization
+      </p>
     </div>
-
-    <!-- Invite Form -->
-    @if (showInviteForm) {
-    <div class="bg-surface border border-border p-6 mb-6">
-        <h3 class="text-sm font-semibold text-text-dark mb-4">Invite Team Member</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-xs font-medium text-text-muted mb-1">Email Address</label>
-                <input type="email" [(ngModel)]="newInvite.email" placeholder="colleague@example.com"
-                    class="w-full px-3 py-2.5 border border-border bg-surface text-sm text-text-dark placeholder:text-text-muted/50" />
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-text-muted mb-1">Role</label>
-                <select [(ngModel)]="newInvite.role"
-                    class="w-full px-3 py-2.5 border border-border bg-surface text-sm text-text-dark">
-                    <option value="ADMIN">Admin</option>
-                    <option value="USER">User</option>
-                </select>
-            </div>
-            <div class="flex items-end gap-2">
-                <button (click)="inviteUser()" [disabled]="userStore.isLoading()"
-                    class="bg-primary text-white px-5 py-2.5 text-sm font-medium hover:bg-primary-hover transition-colors disabled:opacity-50">
-                    {{ userStore.isLoading() ? 'Inviting...' : 'Send Invite' }}
-                </button>
-                <button (click)="showInviteForm = false"
-                    class="border border-border text-text-muted px-5 py-2.5 text-sm hover:bg-primary-light transition-colors">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
+    @if (currentUser?.role === "OWNER" || currentUser?.role === "ADMIN") {
+      <button
+        (click)="showInviteForm = !showInviteForm"
+        class="bg-primary text-white px-5 py-2.5 text-sm font-medium hover:bg-primary-hover transition-colors"
+      >
+        + Invite User
+      </button>
     }
+  </div>
 
-    <!-- Filters -->
-    <div class="flex items-center gap-4 mb-6">
-        <div class="flex-1">
-            <input type="text" [(ngModel)]="searchQuery" placeholder="Search team members..."
-                class="w-full max-w-sm px-4 py-2.5 border border-border bg-surface text-sm text-text-dark placeholder:text-text-muted/50" />
+  <!-- Invite Form -->
+  @if (showInviteForm) {
+    <div class="bg-surface border border-border p-6 mb-6">
+      <h3 class="text-sm font-semibold text-text-dark mb-4">
+        Invite Team Member
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-medium text-text-muted mb-1"
+            >Email Address</label
+          >
+          <input
+            type="email"
+            [(ngModel)]="newInvite.email"
+            placeholder="colleague@example.com"
+            class="w-full px-3 py-2.5 border border-border bg-surface text-sm text-text-dark placeholder:text-text-muted/50"
+          />
         </div>
-        <select [(ngModel)]="roleFilter" class="px-4 py-2.5 border border-border bg-surface text-sm text-text-dark">
-            <option value="">All Roles</option>
-            <option value="OWNER">Owner</option>
+        <div>
+          <label class="block text-xs font-medium text-text-muted mb-1"
+            >Role</label
+          >
+          <select
+            [(ngModel)]="newInvite.role"
+            class="w-full px-3 py-2.5 border border-border bg-surface text-sm text-text-dark"
+          >
             <option value="ADMIN">Admin</option>
-            <option value="USER">User</option>
-        </select>
+            <option value="MEMBER">Member</option>
+            <option value="VIEWER">Viewer</option>
+          </select>
+        </div>
+        <div class="flex items-end gap-2">
+          <button
+            (click)="inviteUser()"
+            [disabled]="userStore.isLoading()"
+            class="bg-primary text-white px-5 py-2.5 text-sm font-medium hover:bg-primary-hover transition-colors disabled:opacity-50"
+          >
+            {{ userStore.isLoading() ? "Inviting..." : "Send Invite" }}
+          </button>
+          <button
+            (click)="showInviteForm = false"
+            class="border border-border text-text-muted px-5 py-2.5 text-sm hover:bg-primary-light transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
     </div>
+  }
 
-    <!-- Table -->
-    <div class="bg-surface border border-border overflow-hidden">
-        <table class="w-full">
-            <thead>
-                <tr class="bg-primary-light border-b border-border">
-                    <th class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3">Member
-                    </th>
-                    <th class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3">Role
-                    </th>
-                    <th class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3">Status
-                    </th>
-                    <th class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3">Joined
-                    </th>
-                    <th class="text-right text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3">
-                        Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @for (user of filteredUsers; track user.id) {
-                <tr class="border-b border-border hover:bg-primary-light/50 transition-colors">
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-semibold">
-                                {{ user.firstName?.charAt(0) || user.email.charAt(0).toUpperCase() }}
-                            </div>
-                            <div>
-                                <div class="text-sm font-medium text-text-dark">
-                                    {{ user.fullName || 'Pending User' }}
-                                    @if (user.id === currentUser?.id) {
-                                    <span
-                                        class="ml-2 text-[10px] bg-border px-1.5 py-0.5 rounded text-text-muted">You</span>
-                                    }
-                                </div>
-                                <div class="text-xs text-text-muted mt-0.5">{{ user.email }}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        @if (canManageUser(user.role) && user.id !== currentUser?.id && user.role !== 'OWNER') {
-                        <select [ngModel]="user.role" (ngModelChange)="updateRole(user.id, $event)"
-                            class="px-2 py-1 text-xs border border-border bg-surface text-text-dark rounded-sm outline-none">
-                            <option value="ADMIN">Admin</option>
-                            <option value="USER">User</option>
-                        </select>
-                        } @else {
-                        <span class="inline-block px-2.5 py-1 text-xs font-medium"
-                            [class]="user.role === 'OWNER' ? 'bg-primary text-white' : user.role === 'ADMIN' ? 'bg-primary/10 text-primary' : 'bg-border text-text-muted'">
-                            {{ user.role }}
-                        </span>
-                        }
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center gap-1.5 text-xs">
-                            <span class="w-1.5 h-1.5 rounded-full"
-                                [class]="user.status === 'ACTIVE' ? 'bg-accent' : user.status === 'INVITED' ? 'bg-yellow-400' : 'bg-text-muted'"></span>
-                            {{ user.status }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-xs text-text-muted">
-                        {{ user.createdAt | date:'mediumDate' }}
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        @if (canManageUser(user.role) && user.id !== currentUser?.id) {
-                        <button (click)="confirmDelete(user.id)"
-                            class="text-xs text-text-muted hover:text-danger px-2 py-1 border border-border hover:border-danger transition-colors">
-                            Remove
-                        </button>
-                        }
-                    </td>
-                </tr>
-                } @empty {
-                <tr>
-                    <td colspan="5" class="px-6 py-12 text-center text-sm text-text-muted">
-                        No team members found
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
+  <!-- Filters -->
+  <div class="flex items-center gap-4 mb-6">
+    <div class="flex-1">
+      <input
+        type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="Search team members..."
+        class="w-full max-w-sm px-4 py-2.5 border border-border bg-surface text-sm text-text-dark placeholder:text-text-muted/50"
+      />
     </div>
+    <select
+      [ngModel]="roleFilter()"
+      (ngModelChange)="roleFilter.set($event)"
+      class="px-4 py-2.5 border border-border bg-surface text-sm text-text-dark"
+    >
+      <option value="">All Roles</option>
+      <option value="OWNER">Owner</option>
+      <option value="ADMIN">Admin</option>
+      <option value="MEMBER">Member</option>
+      <option value="VIEWER">Viewer</option>
+    </select>
+  </div>
 
-    <div class="mt-4 text-xs text-text-muted">
-        Showing {{ filteredUsers.length }} members
-    </div>
+  <!-- Table -->
+  <div class="bg-surface border border-border overflow-hidden">
+    <table class="w-full">
+      <thead>
+        <tr class="bg-primary-light border-b border-border">
+          <th
+            class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3"
+          >
+            Member
+          </th>
+          <th
+            class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3"
+          >
+            Role
+          </th>
+          <th
+            class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3"
+          >
+            Status
+          </th>
+          <th
+            class="text-left text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3"
+          >
+            Joined
+          </th>
+          <th
+            class="text-right text-xs font-semibold text-text-dark uppercase tracking-wider px-6 py-3"
+          >
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of filteredUsers(); track user.id) {
+          <tr
+            class="border-b border-border hover:bg-primary-light/50 transition-colors"
+          >
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-semibold"
+                >
+                  {{
+                    user.firstName?.charAt(0) ||
+                      user.email.charAt(0).toUpperCase()
+                  }}
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-text-dark">
+                    {{ getDisplayName(user) || "Pending User" }}
+                    @if (user.id === currentUser?.id) {
+                      <span
+                        class="ml-2 text-[10px] bg-border px-1.5 py-0.5 rounded text-text-muted"
+                        >You</span
+                      >
+                    }
+                  </div>
+                  <div class="text-xs text-text-muted mt-0.5">
+                    {{ user.email }}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              @if (
+                canManageUser(user) &&
+                user.id !== currentUser?.id &&
+                user.role !== "OWNER"
+              ) {
+                <select
+                  [ngModel]="user.role"
+                  (ngModelChange)="updateRole(user.id, $event)"
+                  class="px-2 py-1 text-xs border border-border bg-surface text-text-dark rounded-sm outline-none"
+                >
+                  <option value="ADMIN">Admin</option>
+                  <option value="MEMBER">Member</option>
+                  <option value="VIEWER">Viewer</option>
+                </select>
+              } @else {
+                <span
+                  class="inline-block px-2.5 py-1 text-xs font-medium"
+                  [class]="
+                    user.role === 'OWNER'
+                      ? 'bg-primary text-white'
+                      : user.role === 'ADMIN'
+                        ? 'bg-primary/10 text-primary'
+                        : 'bg-border text-text-muted'
+                  "
+                >
+                  {{ user.role }}
+                </span>
+              }
+            </td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center gap-1.5 text-xs">
+                <span
+                  class="w-1.5 h-1.5 rounded-full"
+                  [class]="
+                    user.status === 'ACTIVE'
+                      ? 'bg-accent'
+                      : user.status === 'INVITED'
+                        ? 'bg-yellow-400'
+                        : user.status === 'SUSPENDED'
+                          ? 'bg-danger'
+                          : 'bg-text-muted'
+                  "
+                ></span>
+                {{ user.status }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-xs text-text-muted">
+              {{ user.createdAt | date: "mediumDate" }}
+            </td>
+            <td class="px-6 py-4 text-right">
+              @if (canManageUser(user) && user.id !== currentUser?.id) {
+                <button
+                  (click)="confirmDelete(user.id)"
+                  class="text-xs text-text-muted hover:text-danger px-2 py-1 border border-border hover:border-danger transition-colors"
+                >
+                  Remove
+                </button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td
+              colspan="5"
+              class="px-6 py-12 text-center text-sm text-text-muted"
+            >
+              No team members found
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 
-    <app-confirm-dialog [isOpen]="showDeleteConfirm" title="Remove User"
-        message="Are you sure you want to remove this user from the organization? They will lose access to all campaigns and data."
-        confirmText="Remove" (confirmed)="deleteUser()" (cancelled)="cancelDelete()" />
+  <div class="mt-4 text-xs text-text-muted">
+    Showing {{ filteredUsers().length }} members
+  </div>
+
+  <app-confirm-dialog
+    [isOpen]="showDeleteConfirm"
+    title="Remove User"
+    message="Are you sure you want to remove this user from the organization? They will lose access to all campaigns and data."
+    confirmText="Remove"
+    (confirmed)="deleteUser()"
+    (cancelled)="cancelDelete()"
+  />
+
+  <app-confirm-dialog
+    [isOpen]="showRoleConfirm"
+    title="Update User Role"
+    message="Are you sure you want to change this user's role? This will affect their permissions and access levels."
+    type="warning"
+    confirmText="Update Role"
+    (confirmed)="confirmRoleUpdate()"
+    (cancelled)="cancelRoleUpdate()"
+  />
 </div>

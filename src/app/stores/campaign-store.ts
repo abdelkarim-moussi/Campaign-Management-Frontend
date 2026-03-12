@@ -14,8 +14,9 @@ import {
     CampaignService,
     CampaignStatus,
 } from '../services/campaign.service';
-import { catchError, EMPTY, pipe, switchMap, tap } from 'rxjs';
+import { catchError, EMPTY, exhaustMap, pipe, switchMap, tap } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { AnalyticsStore } from './analytics-store';
 
 export const CampaignStore = signalStore(
     { providedIn: 'root' },
@@ -33,6 +34,7 @@ export const CampaignStore = signalStore(
         (
             store,
             campaignService = inject(CampaignService),
+            analyticsStore = inject(AnalyticsStore),
             toastr = inject(ToastrService),
         ) => ({
             loadCampaigns: rxMethod<{ status?: CampaignStatus } | void>(
@@ -164,17 +166,16 @@ export const CampaignStore = signalStore(
             sendCampaign: rxMethod<number>(
                 pipe(
                     tap(() => patchState(store, { isLoading: true })),
-                    switchMap((id) =>
+                    exhaustMap((id) =>
                         campaignService.sendCampaign(id).pipe(
-                            tap(() => {
-                                patchState(store, (state) => ({
-                                    campaigns: state.campaigns.map((c) =>
-                                        c.id === id
-                                            ? { ...c, status: 'SENT' as const }
-                                            : c,
-                                    ),
+                            switchMap(() => campaignService.getCampaigns()),
+                            tap((campaigns) => {
+                                patchState(store, {
+                                    campaigns,
                                     isLoading: false,
-                                }));
+                                });
+                                analyticsStore.loadDashboard();
+                                analyticsStore.loadAllStats();
                                 toastr.success('Campaign sent successfully');
                             }),
                             catchError((error) => {

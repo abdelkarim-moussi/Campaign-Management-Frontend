@@ -7,20 +7,32 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-register',
   imports: [FormsModule, RouterLink],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css'
+  styleUrl: './register.component.css',
 })
 export class RegisterComponent {
-  name = '';
+  firstName = '';
+  lastName = '';
+  organizationName = '';
   email = '';
   password = '';
   confirmPassword = '';
   isLoading = false;
   errorMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
   onSubmit(): void {
-    if (!this.name || !this.email || !this.password || !this.confirmPassword) {
+    if (
+      !this.firstName ||
+      !this.lastName ||
+      !this.organizationName ||
+      !this.email ||
+      !this.password ||
+      !this.confirmPassword
+    ) {
       this.errorMessage = 'Please fill in all fields.';
       return;
     }
@@ -38,14 +50,23 @@ export class RegisterComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.authService.register({ name: this.name, email: this.email, password: this.password }).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.errorMessage = err.error?.message || 'Registration failed. Please try again.';
-      }
-    });
+    this.authService
+      .register({
+        firstName: this.firstName,
+        lastName: this.lastName,
+        organizationName: this.organizationName,
+        email: this.email,
+        password: this.password,
+      })
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.errorMessage =
+            err.error?.message || 'Registration failed. Please try again.';
+        },
+      });
   }
 }

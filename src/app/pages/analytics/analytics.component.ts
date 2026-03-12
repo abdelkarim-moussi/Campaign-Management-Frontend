@@ -88,43 +88,6 @@ export class AnalyticsComponent implements OnInit {
         this.store.loadTopPerforming();
     }
 
-    ngDoCheck(): void {
-        const dash = this.store.dashboard();
-        if (dash && this.overviewDoughnutData.datasets[0].data[0] === 0 && dash.totalMessagesSent > 0) {
-            const delivered = dash.totalMessagesDelivered - dash.totalMessagesOpened;
-            const opened = dash.totalMessagesOpened - dash.totalMessagesClicked;
-            this.overviewDoughnutData = {
-                ...this.overviewDoughnutData,
-                datasets: [{
-                    ...this.overviewDoughnutData.datasets[0],
-                    data: [
-                        Math.max(0, delivered),
-                        Math.max(0, opened),
-                        dash.totalMessagesClicked,
-                        Math.max(0, dash.totalMessagesSent - dash.totalMessagesDelivered),
-                    ],
-                }],
-            };
-        }
-
-        const top = this.store.topPerforming();
-        if (top.length > 0 && (this.horizontalBarData.labels?.length ?? 0) === 0) {
-            this.horizontalBarData = {
-                labels: top.slice(0, 8).map(c => {
-                    const name = c.campaignName || 'Unknown';
-                    return name.length > 20 ? name.substring(0, 20) + '…' : name;
-                }),
-                datasets: [{
-                    label: 'Open Rate %',
-                    data: top.slice(0, 8).map(c => c.openRate),
-                    backgroundColor: top.slice(0, 8).map((_, i) =>
-                        i < 3 ? '#8b8d3a' : i < 5 ? '#a3a54e' : '#c5c770'
-                    ),
-                }],
-            };
-        }
-    }
-
     selectCampaign(campaign: CampaignStats): void {
         if (this.selectedCampaignId === campaign.campaignId) {
             this.selectedCampaignId = null;

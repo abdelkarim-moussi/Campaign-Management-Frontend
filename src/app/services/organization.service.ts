@@ -23,16 +23,14 @@ export interface OrganizationDto {
   providedIn: 'root'
 })
 export class OrganizationService {
-  // Use /api/organizations to match the backend controller mapping
-  private readonly API_URL = `${environment.apiUrl.replace('/api/v1', '/api')}/organizations`;
 
   constructor(private http: HttpClient) { }
 
   getCurrentOrganization(): Observable<OrganizationDto> {
-    return this.http.get<OrganizationDto>(`${this.API_URL}/current`);
+    return this.http.get<OrganizationDto>(`${environment.apiUrl}/organizations/current`);
   }
 
   updateOrganization(data: Partial<OrganizationDto>): Observable<OrganizationDto> {
-    return this.http.put<OrganizationDto>(`${this.API_URL}/current`, data);
+    return this.http.put<OrganizationDto>(`${environment.apiUrl}/organizations/current`, data);
   }
 }

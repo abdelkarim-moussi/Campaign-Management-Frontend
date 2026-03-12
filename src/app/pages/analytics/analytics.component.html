@@ -79,7 +79,7 @@
         <div class="lg:col-span-2 bg-surface border border-border p-6">
             <h3 class="text-sm font-semibold text-text-dark mb-4">Message Breakdown</h3>
             <div class="chart-doughnut-wrapper">
-                <canvas baseChart [data]="overviewDoughnutData" [options]="doughnutOptions" type="doughnut">
+                <canvas baseChart [data]="store.dashboardDoughnutData()" [options]="doughnutOptions" type="doughnut">
                 </canvas>
                 <div class="chart-doughnut-center">
                     <p class="text-2xl font-bold text-text-dark">{{ dash.totalMessagesSent }}</p>
@@ -92,7 +92,7 @@
         <div class="lg:col-span-3 bg-surface border border-border p-6">
             <h3 class="text-sm font-semibold text-text-dark mb-4">Top Campaigns by Open Rate</h3>
             <div class="chart-bar-wrapper">
-                <canvas baseChart [data]="horizontalBarData" [options]="horizontalBarOptions" type="bar">
+                <canvas baseChart [data]="store.topPerformingChartData()" [options]="horizontalBarOptions" type="bar">
                 </canvas>
             </div>
         </div>

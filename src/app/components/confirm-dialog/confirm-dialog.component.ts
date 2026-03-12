@@ -12,6 +12,7 @@ export class ConfirmDialogComponent {
     @Input() isOpen = false;
     @Input() title = 'Delete Contact';
     @Input() message = 'Are you sure? This action cannot be undone.';
+    @Input() type: 'danger' | 'warning' | 'info' | 'success' = 'danger';
     @Input() confirmText = 'Delete';
 
     @Output() confirmed = new EventEmitter<void>();

@@ -22,10 +22,9 @@ export interface UserDto {
   email: string;
   firstName: string;
   lastName: string;
-  fullName: string;
+  fullName?: string;
   role: string;
   status: string;
-  emailVerified: boolean;
   organizationId?: number;
 }
 
@@ -35,14 +34,12 @@ export interface OrganizationDto {
   email: string;
   plan: string;
   status: string;
-  currentUsers: number;
+  maxUsers?: number;
+  currentUsers?: number;
 }
 
 export interface AuthResponse {
-  tokens: {
-    accessToken: string;
-    refreshToken: string;
-  };
+  tokens: Record<string, string>;
   type: string;
   user: UserDto;
   organization: OrganizationDto;
@@ -65,14 +62,20 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-  ) { }
+  ) {}
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${environment.apiUrl}/auth/login`, credentials)
       .pipe(
         tap((response) => {
-          this.saveAuthState(response);
+          const token =
+            response.tokens?.['accessToken'] || response.tokens?.['token'];
+          if (token) {
+            this.setAccessToken(token);
+          }
+          this.setUser(response.user);
+          this.setOrganization(response.organization);
           this.isAuthenticatedSubject.next(true);
         }),
       );
@@ -83,7 +86,13 @@ export class AuthService {
       .post<AuthResponse>(`${environment.apiUrl}/auth/register`, data)
       .pipe(
         tap((response) => {
-          this.saveAuthState(response);
+          const token =
+            response.tokens?.['accessToken'] || response.tokens?.['token'];
+          if (token) {
+            this.setAccessToken(token);
+          }
+          this.setUser(response.user);
+          this.setOrganization(response.organization);
           this.isAuthenticatedSubject.next(true);
         }),
       );
@@ -120,10 +129,15 @@ export class AuthService {
     return !!localStorage.getItem(this.accessTokenKey);
   }
 
-  private saveAuthState(response: AuthResponse): void {
-    localStorage.setItem(this.accessTokenKey, response.tokens.accessToken);
-    localStorage.setItem(this.refreshTokenKey, response.tokens.refreshToken);
-    localStorage.setItem(this.userKey, JSON.stringify(response.user));
-    localStorage.setItem(this.organizationKey, JSON.stringify(response.organization));
+  private setAccessToken(token: string): void {
+    localStorage.setItem(this.accessTokenKey, token);
+  }
+
+  private setUser(user: UserDto): void {
+    localStorage.setItem(this.userKey, JSON.stringify(user));
+  }
+
+  private setOrganization(org: OrganizationDto): void {
+    localStorage.setItem(this.organizationKey, JSON.stringify(org));
   }
 }

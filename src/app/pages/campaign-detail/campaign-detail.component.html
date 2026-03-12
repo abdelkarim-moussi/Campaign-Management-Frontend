@@ -310,7 +310,9 @@
 
     <!-- Remove Confirmation Dialog -->
     <app-confirm-dialog [isOpen]="showRemoveConfirm" title="Remove Contact"
-        message="Are you sure you want to remove this contact from the campaign?" confirmText="Remove"
+        message="Are you sure you want to remove this contact from the campaign?"
+        type="warning"
+        confirmText="Remove"
         (confirmed)="confirmRemove()" (cancelled)="cancelRemove()" />
 </div>
 }
