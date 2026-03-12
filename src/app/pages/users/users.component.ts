@@ -1,68 +1,70 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { User, UserService } from '../../services/user.service';
+import { CommonModule } from '@angular/common';
+import { UserStore } from '../../stores/user.store';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-users',
-  imports: [FormsModule],
+  standalone: true,
+  imports: [FormsModule, CommonModule],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
 export class UsersComponent implements OnInit {
-  users: User[] = [];
-  filteredUsers: User[] = [];
+  readonly userStore = inject(UserStore);
+  readonly authService = inject(AuthService);
+
   searchQuery = '';
   roleFilter = '';
-  showAddForm = false;
-  newUser: Partial<User> = { name: '', email: '', role: 'user' };
+  showInviteForm = false;
 
-  // Mock data for demonstration
-  private mockUsers: User[] = [
-    { id: 1, name: 'Ahmed Benali', email: 'ahmed@easytakrawt.com', role: 'admin', status: 'active', createdAt: '2025-01-15' },
-    { id: 2, name: 'Sara Moussaoui', email: 'sara@easytakrawt.com', role: 'manager', status: 'active', createdAt: '2025-02-20' },
-    { id: 3, name: 'Youssef El Amrani', email: 'youssef@easytakrawt.com', role: 'user', status: 'active', createdAt: '2025-03-10' },
-    { id: 4, name: 'Fatima Zahra', email: 'fatima@easytakrawt.com', role: 'user', status: 'inactive', createdAt: '2025-04-05' },
-    { id: 5, name: 'Karim Hadid', email: 'karim@easytakrawt.com', role: 'manager', status: 'active', createdAt: '2025-05-12' },
-    { id: 6, name: 'Nadia Larbi', email: 'nadia@easytakrawt.com', role: 'user', status: 'active', createdAt: '2025-06-08' },
-  ];
+  newInvite = { email: '', role: 'USER' };
 
-  constructor(private userService: UserService) { }
+  currentUser = this.authService.getUser();
 
   ngOnInit(): void {
-    // Use mock data initially; swap with API call when backend is ready
-    // this.userService.getUsers().subscribe(users => { this.users = users; this.filterUsers(); });
-    this.users = [...this.mockUsers];
-    this.filterUsers();
+    this.userStore.loadUsers();
   }
 
-  filterUsers(): void {
-    this.filteredUsers = this.users.filter(user => {
+  get filteredUsers() {
+    return this.userStore.users().filter(user => {
       const matchesSearch = !this.searchQuery ||
-        user.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        user.fullName?.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
         user.email.toLowerCase().includes(this.searchQuery.toLowerCase());
       const matchesRole = !this.roleFilter || user.role === this.roleFilter;
       return matchesSearch && matchesRole;
     });
   }
 
-  addUser(): void {
-    if (!this.newUser.name || !this.newUser.email) return;
-    const user: User = {
-      id: this.users.length + 1,
-      name: this.newUser.name!,
-      email: this.newUser.email!,
-      role: this.newUser.role || 'user',
-      status: 'active',
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    this.users.unshift(user);
-    this.filterUsers();
-    this.newUser = { name: '', email: '', role: 'user' };
-    this.showAddForm = false;
+  inviteUser(): void {
+    if (!this.newInvite.email || !this.newInvite.role) return;
+
+    this.userStore.inviteUser({
+      request: { email: this.newInvite.email, role: this.newInvite.role },
+      onSuccess: () => {
+        this.newInvite = { email: '', role: 'USER' };
+        this.showInviteForm = false;
+        // Optionally reload users since DTO isn't returned for newly invited immediately
+        this.userStore.loadUsers();
+      }
+    });
   }
 
-  deleteUser(id: number): void {
-    this.users = this.users.filter(u => u.id !== id);
-    this.filterUsers();
+  updateRole(userId: number, newRole: string): void {
+    this.userStore.updateUserRole({ userId, role: newRole });
+  }
+
+  confirmDelete(id: number): void {
+    if (confirm('Are you sure you want to remove this user from the organization? They will lose access to all campaigns and data.')) {
+      this.userStore.deleteUser(id);
+    }
+  }
+
+  canManageUser(targetRole: string): boolean {
+    if (!this.currentUser) return false;
+    if (this.currentUser.role === 'OWNER') return true;
+    if (this.currentUser.role === 'ADMIN' && targetRole !== 'OWNER' && targetRole !== 'ADMIN') return true;
+    return false;
   }
 }

@@ -10,16 +10,42 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
+  organizationName: string;
+}
+
+export interface UserDto {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  role: string;
+  status: string;
+  emailVerified: boolean;
+  organizationId?: number;
+}
+
+export interface OrganizationDto {
+  id: number;
+  name: string;
+  email: string;
+  plan: string;
+  status: string;
+  currentUsers: number;
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  tokenType: string;
-  expiresIn: string;
+  tokens: {
+    accessToken: string;
+    refreshToken: string;
+  };
+  type: string;
+  user: UserDto;
+  organization: OrganizationDto;
 }
 
 @Injectable({
@@ -29,6 +55,7 @@ export class AuthService {
   private accessTokenKey = 'auth_token';
   private refreshTokenKey = 'refresh_token';
   private userKey = 'user';
+  private organizationKey = 'organization';
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(
     this.hasToken(),
   );
@@ -38,15 +65,14 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-  ) {}
+  ) { }
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${environment.apiUrl}/auth/login`, credentials)
       .pipe(
         tap((response) => {
-          this.setAccessToken(response.accessToken);
-          this.setUser({ email: credentials.email });
+          this.saveAuthState(response);
           this.isAuthenticatedSubject.next(true);
         }),
       );
@@ -57,8 +83,7 @@ export class AuthService {
       .post<AuthResponse>(`${environment.apiUrl}/auth/register`, data)
       .pipe(
         tap((response) => {
-          this.setAccessToken(response.accessToken);
-          this.setUser({ name: data.name, email: data.email });
+          this.saveAuthState(response);
           this.isAuthenticatedSubject.next(true);
         }),
       );
@@ -66,7 +91,9 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem(this.accessTokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
     localStorage.removeItem(this.userKey);
+    localStorage.removeItem(this.organizationKey);
     this.isAuthenticatedSubject.next(false);
     this.router.navigate(['/login']);
   }
@@ -75,9 +102,14 @@ export class AuthService {
     return localStorage.getItem(this.accessTokenKey);
   }
 
-  getUser(): any | null {
+  getUser(): UserDto | null {
     const user = localStorage.getItem(this.userKey);
     return user ? JSON.parse(user) : null;
+  }
+
+  getOrganization(): OrganizationDto | null {
+    const org = localStorage.getItem(this.organizationKey);
+    return org ? JSON.parse(org) : null;
   }
 
   isAuthenticated(): boolean {
@@ -88,10 +120,10 @@ export class AuthService {
     return !!localStorage.getItem(this.accessTokenKey);
   }
 
-  private setAccessToken(token: string): void {
-    localStorage.setItem(this.accessTokenKey, token);
-  }
-  private setUser(user: any): void {
-    localStorage.setItem(this.userKey, JSON.stringify(user));
+  private saveAuthState(response: AuthResponse): void {
+    localStorage.setItem(this.accessTokenKey, response.tokens.accessToken);
+    localStorage.setItem(this.refreshTokenKey, response.tokens.refreshToken);
+    localStorage.setItem(this.userKey, JSON.stringify(response.user));
+    localStorage.setItem(this.organizationKey, JSON.stringify(response.organization));
   }
 }
