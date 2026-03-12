@@ -144,4 +144,8 @@
     <div class="mt-4 text-xs text-text-muted">
         Showing {{ filteredUsers.length }} members
     </div>
+
+    <app-confirm-dialog [isOpen]="showDeleteConfirm" title="Remove User"
+        message="Are you sure you want to remove this user from the organization? They will lose access to all campaigns and data."
+        confirmText="Remove" (confirmed)="deleteUser()" (cancelled)="cancelDelete()" />
 </div>

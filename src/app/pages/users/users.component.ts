@@ -3,11 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UserStore } from '../../stores/user.store';
 import { AuthService } from '../../services/auth.service';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, ConfirmDialogComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
@@ -20,6 +21,9 @@ export class UsersComponent implements OnInit {
   showInviteForm = false;
 
   newInvite = { email: '', role: 'USER' };
+
+  showDeleteConfirm = false;
+  deleteTargetId: number | null = null;
 
   currentUser = this.authService.getUser();
 
@@ -56,9 +60,21 @@ export class UsersComponent implements OnInit {
   }
 
   confirmDelete(id: number): void {
-    if (confirm('Are you sure you want to remove this user from the organization? They will lose access to all campaigns and data.')) {
-      this.userStore.deleteUser(id);
+    this.deleteTargetId = id;
+    this.showDeleteConfirm = true;
+  }
+
+  deleteUser(): void {
+    if (this.deleteTargetId) {
+      this.userStore.deleteUser(this.deleteTargetId);
+      this.deleteTargetId = null;
+      this.showDeleteConfirm = false;
     }
+  }
+
+  cancelDelete(): void {
+    this.deleteTargetId = null;
+    this.showDeleteConfirm = false;
   }
 
   canManageUser(targetRole: string): boolean {
