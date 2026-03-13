@@ -1,3 +1,5 @@
+@reference "tailwindcss";
+
 .stat-card {
   @apply bg-white p-5 border border-border transition-all duration-300;
 }

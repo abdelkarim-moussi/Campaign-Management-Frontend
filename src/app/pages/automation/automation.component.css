@@ -1,3 +1,5 @@
+@reference "tailwindcss";
+
 .stat-card {
   @apply bg-white p-6 border border-border transition-all duration-300;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
