@@ -4,9 +4,18 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export type WorkflowStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
-export type WorkflowTriggerType = 'CONTACT_CREATED' | 'CAMPAIGN_SENT' | 'EMAIL_OPENED';
+export type WorkflowTriggerType =
+  | 'CONTACT_CREATED'
+  | 'CAMPAIGN_SENT'
+  | 'EMAIL_OPENED';
 export type ActionType = 'SEND_EMAIL' | 'SEND_SMS' | 'CHANGE_STATUS' | 'WAIT';
-export type ExecutionStatus = 'PENDING' | 'RUNNING' | 'WAITING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+export type ExecutionStatus =
+  | 'PENDING'
+  | 'RUNNING'
+  | 'WAITING'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED';
 
 export interface WorkflowAction {
   id?: number;
@@ -123,11 +132,15 @@ export class AutomationService {
   }
 
   getWorkflowExecutions(id: number): Observable<WorkflowExecution[]> {
-    return this.http.get<WorkflowExecution[]>(`${this.apiUrl}/${id}/executions`);
+    return this.http.get<WorkflowExecution[]>(
+      `${this.apiUrl}/${id}/executions`,
+    );
   }
 
   getExecutionLogs(executionId: number): Observable<WorkflowLog[]> {
-    return this.http.get<WorkflowLog[]>(`${this.apiUrl}/executions/${executionId}/logs`);
+    return this.http.get<WorkflowLog[]>(
+      `${this.apiUrl}/executions/${executionId}/logs`,
+    );
   }
 
   getWorkflowStats(id: number): Observable<WorkflowStatsDto> {

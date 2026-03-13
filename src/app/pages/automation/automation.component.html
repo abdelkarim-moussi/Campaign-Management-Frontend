@@ -144,7 +144,7 @@
 
   <!-- Confirm Delete -->
   <app-confirm-dialog
-    [show]="showDeleteConfirm"
+    [isOpen]="showDeleteConfirm"
     title="Delete Workflow"
     message="Are you sure you want to delete this workflow? This action cannot be undone and all history will be lost."
     (confirm)="executeDelete()"

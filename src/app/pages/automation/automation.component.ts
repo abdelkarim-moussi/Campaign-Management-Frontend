@@ -3,14 +3,23 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AutomationStore } from '../../stores/automation-store';
-import { Workflow, WorkflowDto, WorkflowTriggerType } from '../../services/automation.service';
+import {
+  Workflow,
+  WorkflowDto,
+  WorkflowTriggerType,
+} from '../../services/automation.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
 
 @Component({
   selector: 'app-automation',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmDialogComponent, LoadingOverlayComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ConfirmDialogComponent,
+    LoadingOverlayComponent,
+  ],
   templateUrl: './automation.component.html',
   styleUrl: './automation.component.css',
 })
@@ -26,13 +35,13 @@ export class AutomationComponent implements OnInit {
     name: '',
     description: '',
     triggerType: 'CONTACT_CREATED',
-    actions: []
+    actions: [],
   };
 
   triggerTypes: { value: WorkflowTriggerType; label: string }[] = [
     { value: 'CONTACT_CREATED', label: 'Contact Created' },
     { value: 'CAMPAIGN_SENT', label: 'Campaign Sent' },
-    { value: 'EMAIL_OPENED', label: 'Email Opened' }
+    { value: 'EMAIL_OPENED', label: 'Email Opened' },
   ];
 
   constructor() {
@@ -54,7 +63,7 @@ export class AutomationComponent implements OnInit {
       name: '',
       description: '',
       triggerType: 'CONTACT_CREATED',
-      actions: []
+      actions: [],
     };
     this.showCreateModal = true;
   }
@@ -101,14 +110,18 @@ export class AutomationComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'ACTIVE': return 'bg-green-100 text-green-700';
-      case 'DRAFT': return 'bg-yellow-100 text-yellow-700';
-      case 'INACTIVE': return 'bg-gray-100 text-gray-500';
-      default: return 'bg-border text-text-muted';
+      case 'ACTIVE':
+        return 'bg-green-100 text-green-700';
+      case 'DRAFT':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'INACTIVE':
+        return 'bg-gray-100 text-gray-500';
+      default:
+        return 'bg-border text-text-muted';
     }
   }
 
   getTriggerLabel(type: string): string {
-    return this.triggerTypes.find(t => t.value === type)?.label || type;
+    return this.triggerTypes.find((t) => t.value === type)?.label || type;
   }
 }
