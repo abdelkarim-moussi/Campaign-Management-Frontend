@@ -27,6 +27,7 @@ interface AutomationState {
   stats: WorkflowStatsDto | null;
   isLoading: boolean;
   saveSuccess: boolean;
+  lastCreatedId: number | null;
 }
 
 const initialState: AutomationState = {
@@ -38,6 +39,7 @@ const initialState: AutomationState = {
   stats: null,
   isLoading: false,
   saveSuccess: false,
+  lastCreatedId: null,
 };
 
 export const AutomationStore = signalStore(
@@ -111,7 +113,7 @@ export const AutomationStore = signalStore(
 
       createWorkflow: rxMethod<WorkflowDto>(
         pipe(
-          tap(() => patchState(store, { isLoading: true, saveSuccess: false })),
+          tap(() => patchState(store, { isLoading: true, saveSuccess: false, lastCreatedId: null })),
           switchMap((dto) =>
             automationService.createWorkflow(dto).pipe(
               tap((newWorkflow) => {
@@ -119,12 +121,13 @@ export const AutomationStore = signalStore(
                   workflows: [...state.workflows, newWorkflow],
                   isLoading: false,
                   saveSuccess: true,
+                  lastCreatedId: newWorkflow.id,
                 }));
                 toastr.success('Workflow created successfully');
               }),
               catchError(() => {
                 toastr.error('Failed to create workflow');
-                patchState(store, { isLoading: false, saveSuccess: false });
+                patchState(store, { isLoading: false, saveSuccess: false, lastCreatedId: null });
                 return EMPTY;
               }),
             ),

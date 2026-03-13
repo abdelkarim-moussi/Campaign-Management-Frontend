@@ -46,10 +46,10 @@ export class AutomationComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      if (this.store.saveSuccess()) {
+      if (this.store.saveSuccess() && this.store.lastCreatedId()) {
+        const id = this.store.lastCreatedId();
         this.closeCreateModal();
-        // Redirect to detail page for the newly created workflow if possible
-        // But for now just stay here
+        this.router.navigate(['/automation', id]);
       }
     });
   }
