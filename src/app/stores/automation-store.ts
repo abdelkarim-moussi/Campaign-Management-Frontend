@@ -132,6 +132,32 @@ export const AutomationStore = signalStore(
         ),
       ),
 
+      updateWorkflow: rxMethod<{ id: number; dto: WorkflowDto }>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, saveSuccess: false })),
+          switchMap(({ id, dto }) =>
+            automationService.updateWorkflow(id, dto).pipe(
+              tap((updatedWorkflow) => {
+                patchState(store, (state) => ({
+                  workflows: state.workflows.map((w) =>
+                    w.id === id ? updatedWorkflow : w,
+                  ),
+                  selectedWorkflow: updatedWorkflow,
+                  isLoading: false,
+                  saveSuccess: true,
+                }));
+                toastr.success('Workflow updated successfully');
+              }),
+              catchError(() => {
+                toastr.error('Failed to update workflow');
+                patchState(store, { isLoading: false, saveSuccess: false });
+                return EMPTY;
+              }),
+            ),
+          ),
+        ),
+      ),
+
       activateWorkflow: rxMethod<number>(
         pipe(
           tap(() => patchState(store, { isLoading: true })),

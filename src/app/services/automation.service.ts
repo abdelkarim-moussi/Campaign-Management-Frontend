@@ -94,6 +94,10 @@ export class AutomationService {
     return this.http.post<Workflow>(this.apiUrl, dto);
   }
 
+  updateWorkflow(id: number, dto: WorkflowDto): Observable<Workflow> {
+    return this.http.put<Workflow>(`${this.apiUrl}/${id}`, dto);
+  }
+
   getAllWorkflows(): Observable<Workflow[]> {
     return this.http.get<Workflow[]>(this.apiUrl);
   }
