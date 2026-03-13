@@ -4,10 +4,11 @@ import { Contact } from '../../services/contact.service';
 import { ContactStore } from '../../stores/contact-store';
 import { CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
 
 @Component({
   selector: 'app-contacts',
-  imports: [FormsModule, CommonModule, ConfirmDialogComponent],
+  imports: [FormsModule, CommonModule, ConfirmDialogComponent, LoadingOverlayComponent],
   templateUrl: './contacts.component.html',
   styleUrl: './contacts.component.css',
 })

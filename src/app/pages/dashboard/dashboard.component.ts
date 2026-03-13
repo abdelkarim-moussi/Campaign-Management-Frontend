@@ -4,11 +4,12 @@ import { RouterLink } from '@angular/router';
 import { AnalyticsStore } from '../../stores/analytics-store';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
+import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, BaseChartDirective],
+  imports: [CommonModule, RouterLink, BaseChartDirective, LoadingOverlayComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })

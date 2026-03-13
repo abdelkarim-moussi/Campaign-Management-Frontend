@@ -4,10 +4,11 @@ import { AnalyticsStore } from '../../stores/analytics-store';
 import { CampaignStats } from '../../services/analytics.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartData, ChartConfiguration } from 'chart.js';
+import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
 
 @Component({
     selector: 'app-analytics',
-    imports: [CommonModule, BaseChartDirective],
+    imports: [CommonModule, BaseChartDirective, LoadingOverlayComponent],
     templateUrl: './analytics.component.html',
     styleUrl: './analytics.component.css',
 })

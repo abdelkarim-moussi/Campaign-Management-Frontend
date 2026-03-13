@@ -1,4 +1,7 @@
 <div>
+  <!-- Loading Overlay -->
+  <app-loading-overlay [isLoading]="store.isLoading()" message="Loading dashboard..." />
+
   <!-- Header -->
   <div class="mb-8 flex items-end justify-between">
     <div>
@@ -13,13 +16,7 @@
     </a>
   </div>
 
-  @if (store.isLoading()) {
-  <div class="flex items-center justify-center py-20">
-    <div class="text-sm text-text-muted animate-pulse">
-      Loading dashboard...
-    </div>
-  </div>
-  } @else {
+  @if (!store.isLoading()) {
     @if (store.dashboard(); as dashboard) {
   <!-- Primary KPI Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

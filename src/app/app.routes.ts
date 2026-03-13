@@ -61,6 +61,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'automation',
+        loadComponent: () =>
+          import('./pages/automation/automation.component').then(
+            (m) => m.AutomationComponent,
+          ),
+      },
+      {
+        path: 'automation/:id',
+        loadComponent: () =>
+          import('./pages/automation-detail/automation-detail.component').then(
+            (m) => m.AutomationDetailComponent,
+          ),
+      },
+      {
         path: 'campaigns/:id',
         loadComponent: () =>
           import('./pages/campaign-detail/campaign-detail.component').then(

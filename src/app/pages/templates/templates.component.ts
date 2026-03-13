@@ -10,10 +10,11 @@ import {
 import { TemplateStore } from '../../stores/template-store';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { QuillModule } from 'ngx-quill';
+import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
 
 @Component({
   selector: 'app-templates',
-  imports: [FormsModule, CommonModule, ConfirmDialogComponent, QuillModule],
+  imports: [FormsModule, CommonModule, ConfirmDialogComponent, QuillModule, LoadingOverlayComponent],
   templateUrl: './templates.component.html',
   styleUrl: './templates.component.css',
 })

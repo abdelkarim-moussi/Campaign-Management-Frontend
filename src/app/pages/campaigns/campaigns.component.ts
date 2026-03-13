@@ -12,10 +12,11 @@ import { CampaignStore } from '../../stores/campaign-store';
 import { TemplateStore } from '../../stores/template-store';
 import { ContactStore } from '../../stores/contact-store';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
 
 @Component({
     selector: 'app-campaigns',
-    imports: [FormsModule, CommonModule, ConfirmDialogComponent],
+    imports: [FormsModule, CommonModule, ConfirmDialogComponent, LoadingOverlayComponent],
     templateUrl: './campaigns.component.html',
     styleUrl: './campaigns.component.css',
 })

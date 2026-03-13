@@ -5,11 +5,12 @@ import { User, UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { UserStore } from '../../stores/user.store';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [FormsModule, CommonModule, ConfirmDialogComponent],
+  imports: [FormsModule, CommonModule, ConfirmDialogComponent, LoadingOverlayComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
 })
