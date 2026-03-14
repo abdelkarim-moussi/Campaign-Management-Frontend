@@ -4,17 +4,34 @@
 
   <!-- Breadcrumbs & Header -->
   <div class="mb-8">
-    <button (click)="goBack()" class="text-[10px] font-black uppercase tracking-widest text-primary hover:underline mb-2 flex items-center gap-1 group">
-      <span class="transition-transform group-hover:-translate-x-1 duration-200">←</span> Back to Journeys
+    <button
+      (click)="goBack()"
+      class="text-[10px] font-black uppercase tracking-widest text-primary hover:underline mb-2 flex items-center gap-1 group"
+    >
+      <span class="transition-transform group-hover:-translate-x-1 duration-200"
+        >←</span
+      >
+      Back to Journeys
     </button>
     <div class="flex items-center justify-between">
       @if (store.selectedWorkflow(); as workflow) {
         <div>
-          <h1 class="text-3xl font-bold text-text-dark tracking-tight">{{ workflow.name }}</h1>
-          <p class="text-sm text-text-muted mt-1 font-medium">{{ workflow.description || 'No description provided' }}</p>
+          <h1 class="text-3xl font-bold text-text-dark tracking-tight">
+            {{ workflow.name }}
+          </h1>
+          <p class="text-sm text-text-muted mt-1 font-medium">
+            {{ workflow.description || "No description provided" }}
+          </p>
         </div>
         <div class="flex items-center gap-4">
-          <span [class]="'px-2 py-0.5 rounded-sm text-[9px] font-black uppercase tracking-widest ' + (workflow.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700')">
+          <span
+            [class]="
+              'px-2 py-0.5 rounded-sm text-[9px] font-black uppercase tracking-widest ' +
+              (workflow.status === 'ACTIVE'
+                ? 'bg-green-100 text-green-700'
+                : 'bg-yellow-100 text-yellow-700')
+            "
+          >
             {{ workflow.status }}
           </span>
           <button (click)="saveWorkflow()" class="btn-primary shadow-soft">
@@ -27,63 +44,119 @@
 
   <!-- Tabs Navigation -->
   <div class="flex border-b border-border mb-8 overflow-x-auto">
-    <button (click)="setTab('builder')" 
-            [class]="'tab-btn ' + (activeTab() === 'builder' ? 'tab-btn-active' : 'tab-btn-inactive')">
+    <button
+      (click)="setTab('builder')"
+      [class]="
+        'tab-btn ' +
+        (activeTab() === 'builder' ? 'tab-btn-active' : 'tab-btn-inactive')
+      "
+    >
       Visual Builder
     </button>
-    <button (click)="setTab('executions')" 
-            [class]="'tab-btn ' + (activeTab() === 'executions' ? 'tab-btn-active' : 'tab-btn-inactive')">
+    <button
+      (click)="setTab('executions')"
+      [class]="
+        'tab-btn ' +
+        (activeTab() === 'executions' ? 'tab-btn-active' : 'tab-btn-inactive')
+      "
+    >
       Live Monitoring
     </button>
-    <button (click)="setTab('stats')" 
-            [class]="'tab-btn ' + (activeTab() === 'stats' ? 'tab-btn-active' : 'tab-btn-inactive')">
+    <button
+      (click)="setTab('stats')"
+      [class]="
+        'tab-btn ' +
+        (activeTab() === 'stats' ? 'tab-btn-active' : 'tab-btn-inactive')
+      "
+    >
       Performance
     </button>
   </div>
 
   <!-- Tab Content: Builder -->
-  @if (activeTab() === 'builder') {
+  @if (activeTab() === "builder") {
     <div class="max-w-4xl mx-auto pb-20">
       @if (store.selectedWorkflow(); as workflow) {
         <!-- Trigger Card -->
-        <div class="bg-gray-50 border border-border p-8 mb-4 relative shadow-sm">
-          <div class="absolute -top-3 left-8 px-2 bg-gray-50 text-[10px] font-black text-primary uppercase tracking-[0.2em] border-x border-border">
+        <div
+          class="bg-gray-50 border border-border p-8 mb-4 relative shadow-sm"
+        >
+          <div
+            class="absolute -top-3 left-8 px-2 bg-gray-50 text-[10px] font-black text-primary uppercase tracking-[0.2em] border-x border-border"
+          >
             ENTRY POINT
           </div>
           <div class="flex items-center gap-6">
-            <div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-2xl text-primary shadow-inner">
+            <div
+              class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-2xl text-primary shadow-inner"
+            >
               ⚡
             </div>
             <div>
-              <p class="text-xs font-black text-text-muted uppercase tracking-widest mb-1">Trigger Event</p>
-              <p class="text-lg font-bold text-text-dark">When {{ workflow.triggerType.replace('_', ' ').toLowerCase() }}</p>
-              <p class="text-[11px] text-text-muted font-medium mt-1">This contact will be enrolled in the journey automatically.</p>
+              <p
+                class="text-xs font-black text-text-muted uppercase tracking-widest mb-1"
+              >
+                Trigger Event
+              </p>
+              <p class="text-lg font-bold text-text-dark">
+                When {{ workflow.triggerType.replace("_", " ").toLowerCase() }}
+              </p>
+              <p class="text-[11px] text-text-muted font-medium mt-1">
+                This contact will be enrolled in the journey automatically.
+              </p>
             </div>
           </div>
         </div>
 
         <!-- Connection Line (Visual) -->
         <div class="flex justify-center">
-          <div class="w-px h-10 bg-gradient-to-b from-border to-primary/30"></div>
+          <div class="w-px h-10 bg-linear-to-b from-border to-primary/30"></div>
         </div>
 
         <!-- Actions List -->
         <div class="space-y-0 relative">
-          @for (action of workflow.actions; track action.orderIndex; let i = $index) {
+          @for (
+            action of workflow.actions;
+            track action.orderIndex;
+            let i = $index
+          ) {
             <div class="builder-step group">
               <div class="p-6 flex items-start gap-6">
                 <!-- Action Icon -->
-                <div [class]="'step-icon ' + (action.type === 'WAIT' ? 'bg-orange-50 text-orange-600' : 'bg-primary/5 text-primary')">
+                <div
+                  [class]="
+                    'step-icon ' +
+                    (action.type === 'WAIT'
+                      ? 'bg-orange-50 text-orange-600'
+                      : 'bg-primary/5 text-primary')
+                  "
+                >
                   <span class="material-icons text-xl">
-                    {{ action.type === 'SEND_EMAIL' ? 'email' : action.type === 'SEND_SMS' ? 'textsms' : action.type === 'WAIT' ? 'schedule' : 'sync_alt' }}
+                    {{
+                      action.type === "SEND_EMAIL"
+                        ? "email"
+                        : action.type === "SEND_SMS"
+                          ? "textsms"
+                          : action.type === "WAIT"
+                            ? "schedule"
+                            : "sync_alt"
+                    }}
                   </span>
                 </div>
 
                 <!-- Action Form -->
-                <div class="flex-grow grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+                <div
+                  class="grow grid grid-cols-1 md:grid-cols-12 gap-6 items-end"
+                >
                   <div class="md:col-span-4">
-                    <label class="text-[9px] font-black text-text-muted uppercase tracking-wider mb-2 block">Step Action</label>
-                    <select [(ngModel)]="action.type" class="w-full text-sm font-bold border-b-2 border-transparent bg-gray-50/50 p-2 focus:bg-white focus:border-primary transition-all outline-none">
+                    <label
+                      class="text-[9px] font-black text-text-muted uppercase tracking-wider mb-2 block"
+                      >Step Action</label
+                    >
+                    <select
+                      [(ngModel)]="action.type"
+                      class="w-full text-sm font-bold border-b-2 border-transparent bg-gray-50/50 p-2 focus:bg-surface focus:border-primary transition-all outline-none"
+                    >
                       @for (type of actionTypes; track type.value) {
                         <option [value]="type.value">{{ type.label }}</option>
                       }
@@ -91,22 +164,46 @@
                   </div>
 
                   <div class="md:col-span-6">
-                    @if (action.type === 'WAIT') {
-                      <label class="text-[9px] font-black text-text-muted uppercase tracking-wider mb-2 block">Wait Duration (Hours)</label>
-                      <input [(ngModel)]="action.delayHours" type="number" min="0" 
-                             class="w-full text-sm font-bold border-b-2 border-transparent bg-gray-50/50 p-2 focus:bg-white focus:border-primary transition-all outline-none"
-                             placeholder="0 hours">
-                    } @else if (action.type === 'SEND_EMAIL') {
-                      <label class="text-[9px] font-black text-text-muted uppercase tracking-wider mb-2 block">Select Email Template</label>
-                      <select [(ngModel)]="action.actionParams" class="w-full text-sm font-bold border-b-2 border-transparent bg-gray-50/50 p-2 focus:bg-white focus:border-primary transition-all outline-none">
+                    @if (action.type === "WAIT") {
+                      <label
+                        class="text-[9px] font-black text-text-muted uppercase tracking-wider mb-2 block"
+                        >Wait Duration (Hours)</label
+                      >
+                      <input
+                        [(ngModel)]="action.delayHours"
+                        type="number"
+                        min="0"
+                        class="w-full text-sm font-bold border-b-2 border-transparent bg-gray-50/50 p-2 focus:bg-surface focus:border-primary transition-all outline-none"
+                        placeholder="0 hours"
+                      />
+                    } @else if (action.type === "SEND_EMAIL") {
+                      <label
+                        class="text-[9px] font-black text-text-muted uppercase tracking-wider mb-2 block"
+                        >Select Email Template</label
+                      >
+                      <select
+                        [(ngModel)]="action.actionParams"
+                        class="w-full text-sm font-bold border-b-2 border-transparent bg-gray-50/50 p-2 focus:bg-surface focus:border-primary transition-all outline-none"
+                      >
                         <option value="">Choose a template...</option>
-                        @for (template of templateStore.templates(); track template.id) {
-                          <option [value]="template.id">{{ template.name }}</option>
+                        @for (
+                          template of templateStore.templates();
+                          track template.id
+                        ) {
+                          <option [value]="template.id">
+                            {{ template.name }}
+                          </option>
                         }
                       </select>
-                    } @else if (action.type === 'CHANGE_STATUS') {
-                      <label class="text-[9px] font-black text-text-muted uppercase tracking-wider mb-2 block">New Contact Status</label>
-                      <select [(ngModel)]="action.actionParams" class="w-full text-sm font-bold border-b-2 border-transparent bg-gray-50/50 p-2 focus:bg-white focus:border-primary transition-all outline-none">
+                    } @else if (action.type === "CHANGE_STATUS") {
+                      <label
+                        class="text-[9px] font-black text-text-muted uppercase tracking-wider mb-2 block"
+                        >New Contact Status</label
+                      >
+                      <select
+                        [(ngModel)]="action.actionParams"
+                        class="w-full text-sm font-bold border-b-2 border-transparent bg-gray-50/50 p-2 focus:bg-surface focus:border-primary transition-all outline-none"
+                      >
                         <option value="ACTIVE">ACTIVE</option>
                         <option value="VIP">VIP</option>
                         <option value="BOUNCED">BOUNCED</option>
@@ -115,16 +212,34 @@
                     }
                   </div>
 
-                  <div class="md:col-span-2 flex items-center justify-end gap-1 pb-1">
-                    <button (click)="moveAction(i, 'up')" [disabled]="i === 0" 
-                            class="p-1.5 hover:bg-gray-100 rounded-sm disabled:opacity-20 transition-colors" title="Move Up">
-                      <span class="material-icons text-sm">keyboard_arrow_up</span>
+                  <div
+                    class="md:col-span-2 flex items-center justify-end gap-1 pb-1"
+                  >
+                    <button
+                      (click)="moveAction(i, 'up')"
+                      [disabled]="i === 0"
+                      class="p-1.5 hover:bg-gray-100 rounded-sm disabled:opacity-20 transition-colors"
+                      title="Move Up"
+                    >
+                      <span class="material-icons text-sm"
+                        >keyboard_arrow_up</span
+                      >
                     </button>
-                    <button (click)="moveAction(i, 'down')" [disabled]="i === workflow.actions.length - 1" 
-                            class="p-1.5 hover:bg-gray-100 rounded-sm disabled:opacity-20 transition-colors" title="Move Down">
-                      <span class="material-icons text-sm">keyboard_arrow_down</span>
+                    <button
+                      (click)="moveAction(i, 'down')"
+                      [disabled]="i === workflow.actions.length - 1"
+                      class="p-1.5 hover:bg-gray-100 rounded-sm disabled:opacity-20 transition-colors"
+                      title="Move Down"
+                    >
+                      <span class="material-icons text-sm"
+                        >keyboard_arrow_down</span
+                      >
                     </button>
-                    <button (click)="removeAction(i)" class="p-1.5 text-danger hover:bg-red-50 rounded-sm transition-colors ml-1" title="Delete Step">
+                    <button
+                      (click)="removeAction(i)"
+                      class="p-1.5 text-danger hover:bg-red-50 rounded-sm transition-colors ml-1"
+                      title="Delete Step"
+                    >
                       <span class="material-icons text-sm">delete_outline</span>
                     </button>
                   </div>
@@ -143,13 +258,23 @@
           <!-- Add Action Button -->
           <div class="flex flex-col items-center mt-6">
             @if (workflow.actions.length > 0) {
-              <div class="w-px h-8 bg-gradient-to-b from-border to-transparent mb-4"></div>
+              <div
+                class="w-px h-8 bg-linear-to-b from-border to-transparent mb-4"
+              ></div>
             }
-            <button (click)="addAction()" class="group flex flex-col items-center gap-2">
-              <div class="w-10 h-10 rounded-full border-2 border-dashed border-primary/40 flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+            <button
+              (click)="addAction()"
+              class="group flex flex-col items-center gap-2"
+            >
+              <div
+                class="w-10 h-10 rounded-full border-2 border-dashed border-primary/40 flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300"
+              >
                 <span class="text-xl">+</span>
               </div>
-              <span class="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 group-hover:text-primary transition-colors">Add Step</span>
+              <span
+                class="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 group-hover:text-primary transition-colors"
+                >Add Step</span
+              >
             </button>
           </div>
         </div>
@@ -158,16 +283,27 @@
   }
 
   <!-- Tab Content: Executions -->
-  @if (activeTab() === 'executions') {
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 min-h-[600px]">
+  @if (activeTab() === "executions") {
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 min-h-150">
       <!-- Executions List -->
-      <div class="bg-white border border-border shadow-soft self-start overflow-hidden">
-        <div class="px-6 py-4 border-b border-border bg-gray-50/50 flex items-center justify-between">
-          <span class="text-[10px] font-black text-text-muted uppercase tracking-widest">Active Enrollments</span>
-          <span class="text-[10px] font-bold text-primary">{{ store.executions().length }} Total</span>
+      <div
+        class="bg-surface border border-border shadow-soft self-start overflow-hidden"
+      >
+        <div
+          class="px-6 py-4 border-b border-border bg-gray-50/50 flex items-center justify-between"
+        >
+          <span
+            class="text-[10px] font-black text-text-muted uppercase tracking-widest"
+            >Active Enrollments</span
+          >
+          <span class="text-[10px] font-bold text-primary"
+            >{{ store.executions().length }} Total</span
+          >
         </div>
         <table class="w-full text-left">
-          <thead class="bg-gray-100/30 border-b border-border text-[9px] uppercase font-black text-text-muted tracking-widest">
+          <thead
+            class="bg-gray-100/30 border-b border-border text-[9px] uppercase font-black text-text-muted tracking-widest"
+          >
             <tr>
               <th class="px-6 py-4">Status</th>
               <th class="px-6 py-4">Subscriber</th>
@@ -176,26 +312,56 @@
           </thead>
           <tbody class="divide-y divide-border text-xs">
             @for (ex of store.executions(); track ex.id) {
-              <tr (click)="viewLogs(ex.id)" 
-                  [class]="'cursor-pointer hover:bg-gray-50 transition-all ' + (selectedExecutionId() === ex.id ? 'bg-primary/5 ring-1 ring-inset ring-primary/20' : '')">
+              <tr
+                (click)="viewLogs(ex.id)"
+                [class]="
+                  'cursor-pointer hover:bg-gray-50 transition-all ' +
+                  (selectedExecutionId() === ex.id
+                    ? 'bg-primary/5 ring-1 ring-inset ring-primary/20'
+                    : '')
+                "
+              >
                 <td class="px-6 py-4">
-                  <span [class]="'px-1.5 py-0.5 rounded-sm text-[8px] font-black uppercase tracking-widest ' + (ex.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : ex.status === 'FAILED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700')">
+                  <span
+                    [class]="
+                      'px-1.5 py-0.5 rounded-sm text-[8px] font-black uppercase tracking-widest ' +
+                      (ex.status === 'COMPLETED'
+                        ? 'bg-green-100 text-green-700'
+                        : ex.status === 'FAILED'
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-blue-100 text-blue-700')
+                    "
+                  >
                     {{ ex.status }}
                   </span>
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex flex-col">
-                    <span class="font-bold text-text-dark">{{ ex.contact?.fullName || 'Anonymous' }}</span>
-                    <span class="text-[10px] text-text-muted">#{{ ex.id }}</span>
+                    <span class="font-bold text-text-dark">{{
+                      ex.contact?.fullName || "Anonymous"
+                    }}</span>
+                    <span class="text-[10px] text-text-muted"
+                      >#{{ ex.id }}</span
+                    >
                   </div>
                 </td>
-                <td class="px-6 py-4 text-[10px] font-bold text-text-muted text-right">{{ ex.startedAt | date:'MMM d, HH:mm' }}</td>
+                <td
+                  class="px-6 py-4 text-[10px] font-bold text-text-muted text-right"
+                >
+                  {{ ex.startedAt | date: "MMM d, HH:mm" }}
+                </td>
               </tr>
             } @empty {
               <tr>
                 <td colspan="3" class="px-6 py-20 text-center">
-                  <span class="material-icons text-4xl text-gray-200 mb-2">history</span>
-                  <p class="text-xs text-text-muted font-bold uppercase tracking-widest">No history yet</p>
+                  <span class="material-icons text-4xl text-gray-200 mb-2"
+                    >history</span
+                  >
+                  <p
+                    class="text-xs text-text-muted font-bold uppercase tracking-widest"
+                  >
+                    No history yet
+                  </p>
                 </td>
               </tr>
             }
@@ -204,27 +370,47 @@
       </div>
 
       <!-- Execution Logs (Console) -->
-      <div class="bg-gray-900 rounded-sm shadow-2xl flex flex-col border border-gray-800">
-        <div class="px-6 py-4 bg-gray-800/50 flex items-center justify-between border-b border-gray-700">
+      <div
+        class="bg-gray-900 rounded-sm shadow-2xl flex flex-col border border-gray-800"
+      >
+        <div
+          class="px-6 py-4 bg-gray-800/50 flex items-center justify-between border-b border-gray-700"
+        >
           <div class="flex items-center gap-3">
             <div class="flex gap-1.5">
               <div class="w-2 h-2 rounded-full bg-red-500/50"></div>
               <div class="w-2 h-2 rounded-full bg-yellow-500/50"></div>
               <div class="w-2 h-2 rounded-full bg-green-500/50"></div>
             </div>
-            <span class="text-white font-black text-[9px] uppercase tracking-[0.2em] ml-2">Console Output</span>
+            <span
+              class="text-white font-black text-[9px] uppercase tracking-[0.2em] ml-2"
+              >Console Output</span
+            >
           </div>
           @if (selectedExecutionId()) {
-            <span class="text-primary font-mono text-[10px] font-bold">SID: {{ selectedExecutionId() }}</span>
+            <span class="text-primary font-mono text-[10px] font-bold"
+              >SID: {{ selectedExecutionId() }}</span
+            >
           }
         </div>
-        
-        <div class="flex-grow p-6 font-mono text-[11px] overflow-y-auto max-h-[500px] custom-scrollbar">
+
+        <div
+          class="grow p-6 font-mono text-[11px] overflow-y-auto max-h-125 custom-scrollbar"
+        >
           @if (selectedExecutionId()) {
             @for (log of store.logs(); track log.id) {
               <div class="log-line">
-                <span class="log-timestamp">[{{ log.createdAt | date:'HH:mm:ss' }}]</span>
-                <span [class]="'log-status ' + (log.status === 'SUCCESS' ? 'text-green-500' : 'text-red-500')">
+                <span class="log-timestamp"
+                  >[{{ log.createdAt | date: "HH:mm:ss" }}]</span
+                >
+                <span
+                  [class]="
+                    'log-status ' +
+                    (log.status === 'SUCCESS'
+                      ? 'text-green-500'
+                      : 'text-red-500')
+                  "
+                >
                   {{ log.status }}
                 </span>
                 <span class="log-message">{{ log.message }}</span>
@@ -233,9 +419,15 @@
               <div class="text-gray-600 italic">Connecting to stream...</div>
             }
           } @else {
-            <div class="h-full flex flex-col items-center justify-center text-gray-700 space-y-4 py-20">
+            <div
+              class="h-full flex flex-col items-center justify-center text-gray-700 space-y-4 py-20"
+            >
               <span class="material-icons text-5xl opacity-20">dvr</span>
-              <p class="text-[10px] font-black uppercase tracking-widest opacity-50">Select an execution to inspect logs</p>
+              <p
+                class="text-[10px] font-black uppercase tracking-widest opacity-50"
+              >
+                Select an execution to inspect logs
+              </p>
             </div>
           }
         </div>
@@ -244,7 +436,7 @@
   }
 
   <!-- Tab Content: Stats -->
-  @if (activeTab() === 'stats') {
+  @if (activeTab() === "stats") {
     @if (store.stats(); as stats) {
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
         <div class="stat-card border-l-4 border-l-primary shadow-soft">
@@ -253,25 +445,36 @@
         </div>
         <div class="stat-card border-l-4 border-l-green-500 shadow-soft">
           <p class="stat-label">Successful</p>
-          <p class="stat-value text-green-600">{{ stats.successfulExecutions }}</p>
+          <p class="stat-value text-green-600">
+            {{ stats.successfulExecutions }}
+          </p>
         </div>
         <div class="stat-card border-l-4 border-l-danger shadow-soft">
           <p class="stat-label">Drop-offs</p>
           <p class="stat-value text-danger">{{ stats.failedExecutions }}</p>
         </div>
-        <div class="stat-card border-l-4 border-l-primary shadow-soft bg-primary/5">
+        <div
+          class="stat-card border-l-4 border-l-primary shadow-soft bg-primary/5"
+        >
           <p class="stat-label">Conversion Rate</p>
-          <p class="stat-value text-primary font-black">{{ stats.successRate.toFixed(1) }}%</p>
+          <p class="stat-value text-primary font-black">
+            {{ stats.successRate.toFixed(1) }}%
+          </p>
         </div>
       </div>
-      
-      <div class="bg-white border border-border p-20 text-center shadow-soft">
-        <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+
+      <div class="bg-surface border border-border p-20 text-center shadow-soft">
+        <div
+          class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6"
+        >
           <span class="material-icons text-3xl text-primary/40">insights</span>
         </div>
-        <h3 class="text-xl font-bold text-text-dark tracking-tight">Analytics Deep Dive</h3>
+        <h3 class="text-xl font-bold text-text-dark tracking-tight">
+          Analytics Deep Dive
+        </h3>
         <p class="text-sm text-text-muted mt-2 max-w-sm mx-auto font-medium">
-          Once this journey has processed more data, you'll see advanced funnel visualization and per-step performance.
+          Once this journey has processed more data, you'll see advanced funnel
+          visualization and per-step performance.
         </p>
       </div>
     }

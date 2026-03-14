@@ -97,7 +97,7 @@ export interface WorkflowLog {
 })
 export class AutomationService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/v1/automation/workflows`;
+  private apiUrl = `${environment.apiUrl}/automation/workflows`;
 
   createWorkflow(dto: WorkflowDto): Observable<Workflow> {
     return this.http.post<Workflow>(this.apiUrl, dto);

@@ -67,7 +67,7 @@ export const AutomationStore = signalStore(
               ),
               catchError(() => {
                 toastr.error('Failed to load workflows');
-                patchState(store, { isLoading: false });
+                patchState(store, { isLoading: false });  
                 return EMPTY;
               }),
             ),

@@ -1,57 +1,122 @@
-@reference "tailwindcss";
-
 .stat-card {
-  @apply bg-white p-5 border border-border transition-all duration-300;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 1.25rem 1.5rem;
+  transition: all 0.3s ease;
 }
 
 .stat-label {
-  @apply text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.25rem;
 }
 
 .stat-value {
-  @apply text-xl font-bold text-text-dark;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
 }
 
 .btn-primary {
-  @apply bg-primary text-white px-5 py-2.5 rounded-sm font-bold text-xs uppercase tracking-widest transition-all duration-200 hover:shadow-lg hover:shadow-primary/30 active:scale-95;
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.625rem 1.25rem;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 10px 15px -3px rgba(var(--rgb-primary), 0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.95);
 }
 
 .builder-step {
-  @apply bg-white border border-border shadow-sm transition-all duration-200;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
 }
 
 .builder-step:hover {
-  @apply border-primary/50 shadow-md;
+  border-color: rgba(var(--rgb-primary), 0.5);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .step-icon {
-  @apply w-10 h-10 rounded-sm flex items-center justify-center text-lg transition-colors;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  transition: color 0.2s ease;
 }
 
 .log-line {
-  @apply flex gap-3 mb-1.5 opacity-80 hover:opacity-100 transition-opacity;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.375rem;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.log-line:hover {
+  opacity: 1;
 }
 
 .log-timestamp {
-  @apply text-gray-600 font-bold shrink-0;
+  color: #4b5563;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 .log-status {
-  @apply font-black px-1 rounded-sm text-[10px] uppercase shrink-0;
+  font-weight: 900;
+  padding: 0 0.25rem;
+  border-radius: 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  flex-shrink: 0;
 }
 
 .log-message {
-  @apply text-gray-300;
+  color: #d1d5db;
 }
 
 .tab-btn {
-  @apply px-6 py-4 text-[11px] font-black uppercase tracking-widest border-b-2 transition-all;
+  padding: 1.5rem;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .tab-btn-active {
-  @apply border-primary text-primary bg-primary/[0.02];
+  border-bottom-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: rgba(var(--rgb-primary), 0.02);
 }
 
 .tab-btn-inactive {
-  @apply border-transparent text-text-muted hover:text-text-dark hover:bg-gray-50/50;
+  border-bottom-color: transparent;
+  color: var(--color-text-muted);
+}
+
+.tab-btn-inactive:hover {
+  color: var(--color-text-dark);
+  background-color: rgba(0, 0, 0, 0.025);
 }

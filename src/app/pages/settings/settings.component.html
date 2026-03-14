@@ -1,153 +1,254 @@
 <div class="max-w-4xl mx-auto pb-12">
-    <div class="mb-8">
-      <div>
-  <!-- Loading Overlay -->
-  <app-loading-overlay [isLoading]="orgStore.isLoading() || isUpdatingProfile" />
+  <div class="mb-8">
+    <div>
+      <!-- Loading Overlay -->
+      <app-loading-overlay
+        [isLoading]="orgStore.isLoading() || isUpdatingProfile"
+      />
 
-  <h1 class="text-2xl font-semibold text-text-dark mb-8">Settings</h1>
-        <p class="text-sm text-text-muted mt-1">Manage your organization and personal preferences</p>
+      <h1 class="text-2xl font-semibold text-text-dark mb-8">Settings</h1>
+      <p class="text-sm text-text-muted mt-1">
+        Manage your organization and personal preferences
+      </p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Left column: Navigation / Tabs -->
+      <div class="space-y-1">
+        <button
+          (click)="activeTab = 'organization'"
+          [class]="
+            activeTab === 'organization'
+              ? 'bg-primary/10 text-primary border-r-2 border-primary'
+              : 'text-text-muted hover:text-text-dark hover:bg-surface'
+          "
+          class="w-full text-left cursor-pointer block px-4 py-2 text-sm font-medium transition-colors"
+        >
+          Organization
+        </button>
+        <button
+          (click)="activeTab = 'profile'"
+          [class]="
+            activeTab === 'profile'
+              ? 'bg-primary/10 text-primary border-r-2 border-primary'
+              : 'text-text-muted hover:text-text-dark hover:bg-surface'
+          "
+          class="w-full text-left cursor-pointer block px-4 py-2 text-sm font-medium transition-colors"
+        >
+          Personal Profile
+        </button>
+      </div>
 
-        <!-- Left column: Navigation / Tabs -->
-        <div class="space-y-1">
-            <button (click)="activeTab = 'organization'"
-                [class]="activeTab === 'organization' ? 'bg-primary/10 text-primary border-r-2 border-primary' : 'text-text-muted hover:text-text-dark hover:bg-surface'"
-                class="w-full text-left cursor-pointer block px-4 py-2 text-sm font-medium transition-colors">
-                Organization
-            </button>
-            <button (click)="activeTab = 'profile'"
-                [class]="activeTab === 'profile' ? 'bg-primary/10 text-primary border-r-2 border-primary' : 'text-text-muted hover:text-text-dark hover:bg-surface'"
-                class="w-full text-left cursor-pointer block px-4 py-2 text-sm font-medium transition-colors">
-                Personal Profile
-            </button>
-        </div>
-
-        <!-- Right column: Forms & Content -->
-        <div class="md:col-span-2 space-y-8">
-
-            @if (activeTab === 'organization') {
-            <!-- Usage Limits Card -->
-            @if (orgStore.organization(); as org) {
+      <!-- Right column: Forms & Content -->
+      <div class="md:col-span-2 space-y-8">
+        @if (activeTab === "organization") {
+          <!-- Usage Limits Card -->
+          @if (orgStore.organization(); as org) {
             <div class="bg-surface border border-border p-6 shadow-sm">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-text-dark">Subscription Plan</h3>
-                    <span
-                        class="inline-block px-3 py-1 bg-accent/20 text-accent font-semibold text-xs rounded-full uppercase tracking-wider">
-                        {{ org.plan }}
-                    </span>
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-text-dark">
+                  Subscription Plan
+                </h3>
+                <span
+                  class="inline-block px-3 py-1 bg-accent/20 text-accent font-semibold text-xs rounded-full uppercase tracking-wider"
+                >
+                  {{ org.plan }}
+                </span>
+              </div>
+
+              <div class="space-y-6">
+                <!-- Users Limit -->
+                <div>
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="text-text-dark font-medium">Team Members</span>
+                    <span class="text-text-muted"
+                      >{{ org.currentUsers }} / {{ org.maxUsers }}</span
+                    >
+                  </div>
+                  <div
+                    class="w-full bg-border h-2 rounded-full overflow-hidden"
+                  >
+                    <div
+                      class="bg-primary h-full rounded-full transition-all duration-500"
+                      [style.width.%]="
+                        getUsagePercentage(org.currentUsers, org.maxUsers)
+                      "
+                      [class.bg-danger]="
+                        getUsagePercentage(org.currentUsers, org.maxUsers) > 90
+                      "
+                    ></div>
+                  </div>
                 </div>
 
-                <div class="space-y-6">
-                    <!-- Users Limit -->
-                    <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="text-text-dark font-medium">Team Members</span>
-                            <span class="text-text-muted">{{ org.currentUsers }} / {{ org.maxUsers }}</span>
-                        </div>
-                        <div class="w-full bg-border h-2 rounded-full overflow-hidden">
-                            <div class="bg-primary h-full rounded-full transition-all duration-500"
-                                [style.width.%]="getUsagePercentage(org.currentUsers, org.maxUsers)"
-                                [class.bg-danger]="getUsagePercentage(org.currentUsers, org.maxUsers) > 90"></div>
-                        </div>
-                    </div>
-
-                    <!-- Contacts Limit -->
-                    <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="text-text-dark font-medium">Audience Contacts</span>
-                            <span class="text-text-muted">{{ org.currentContacts }} / {{ org.maxContacts }}</span>
-                        </div>
-                        <div class="w-full bg-border h-2 rounded-full overflow-hidden">
-                            <div class="bg-primary h-full rounded-full transition-all duration-500"
-                                [style.width.%]="getUsagePercentage(org.currentContacts, org.maxContacts)"
-                                [class.bg-danger]="getUsagePercentage(org.currentContacts, org.maxContacts) > 90"></div>
-                        </div>
-                    </div>
-
-                    <!-- Campaigns Limit -->
-                    <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="text-text-dark font-medium">Monthly Campaigns</span>
-                            <span class="text-text-muted">Max {{ org.maxCampaignsPerMonth }} per month</span>
-                        </div>
-                        <div class="w-full bg-border h-2 rounded-full overflow-hidden">
-                            <div class="bg-accent h-full rounded-full w-full opacity-30"></div>
-                        </div>
-                        <p class="text-xs text-text-muted mt-2">Included in your current plan</p>
-                    </div>
+                <!-- Contacts Limit -->
+                <div>
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="text-text-dark font-medium"
+                      >Audience Contacts</span
+                    >
+                    <span class="text-text-muted"
+                      >{{ org.currentContacts }} / {{ org.maxContacts }}</span
+                    >
+                  </div>
+                  <div
+                    class="w-full bg-border h-2 rounded-full overflow-hidden"
+                  >
+                    <div
+                      class="bg-primary h-full rounded-full transition-all duration-500"
+                      [style.width.%]="
+                        getUsagePercentage(org.currentContacts, org.maxContacts)
+                      "
+                      [class.bg-danger]="
+                        getUsagePercentage(
+                          org.currentContacts,
+                          org.maxContacts
+                        ) > 90
+                      "
+                    ></div>
+                  </div>
                 </div>
+
+                <!-- Campaigns Limit -->
+                <div>
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="text-text-dark font-medium"
+                      >Monthly Campaigns</span
+                    >
+                    <span class="text-text-muted"
+                      >Max {{ org.maxCampaignsPerMonth }} per month</span
+                    >
+                  </div>
+                  <div
+                    class="w-full bg-border h-2 rounded-full overflow-hidden"
+                  >
+                    <div
+                      class="bg-accent h-full rounded-full w-full opacity-30"
+                    ></div>
+                  </div>
+                  <p class="text-xs text-text-muted mt-2">
+                    Included in your current plan
+                  </p>
+                </div>
+              </div>
             </div>
 
             <!-- Organization Details Form -->
             <div class="bg-surface border border-border p-6 shadow-sm">
-                <h3 class="text-lg font-semibold text-text-dark mb-1">Organization Profile</h3>
-                <p class="text-sm text-text-muted mb-6">Update your company's basic information.</p>
+              <h3 class="text-lg font-semibold text-text-dark mb-1">
+                Organization Profile
+              </h3>
+              <p class="text-sm text-text-muted mb-6">
+                Update your company's basic information.
+              </p>
 
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-text-dark mb-1">Organization Name</label>
-                        <input type="text" [(ngModel)]="orgForm.name" [disabled]="currentUser?.role !== 'OWNER'"
-                            class="w-full px-4 py-2 border border-border bg-white text-sm text-text-dark disabled:bg-gray-50 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" />
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-text-dark mb-1">Billing Email</label>
-                        <input type="email" [(ngModel)]="orgForm.email" [disabled]="currentUser?.role !== 'OWNER'"
-                            class="w-full px-4 py-2 border border-border bg-white text-sm text-text-dark disabled:bg-gray-50 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" />
-                    </div>
-                </div>
-
-                @if (currentUser?.role === 'OWNER') {
-                <div class="mt-6 flex justify-end">
-                    <button (click)="updateOrganization()" [disabled]="orgStore.isLoading()"
-                        class="bg-primary text-white px-6 py-2.5 text-sm font-medium hover:bg-primary-hover transition-colors disabled:opacity-50">
-                        {{ orgStore.isLoading() ? 'Saving...' : 'Save Changes' }}
-                    </button>
-                </div>
-                } @else {
-                <div class="mt-6 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm">
-                    Only the Organization Owner can update these settings.
-                </div>
-                }
-            </div>
-            }
-            }
-
-            @if (activeTab === 'profile') {
-            <!-- Personal Profile Form -->
-            <div id="profile" class="bg-surface border border-border p-6 shadow-sm">
-                <h3 class="text-lg font-semibold text-text-dark mb-1">Personal Profile</h3>
-                <p class="text-sm text-text-muted mb-6">Update your own name and account details.</p>
-
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-text-dark mb-1">First Name</label>
-                        <input type="text" [(ngModel)]="profileForm.firstName"
-                            class="w-full px-4 py-2 border border-border bg-white text-sm text-text-dark focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" />
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-text-dark mb-1">Last Name</label>
-                        <input type="text" [(ngModel)]="profileForm.lastName"
-                            class="w-full px-4 py-2 border border-border bg-white text-sm text-text-dark focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" />
-                    </div>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-text-dark mb-1"
+                    >Organization Name</label
+                  >
+                  <input
+                    type="text"
+                    [(ngModel)]="orgForm.name"
+                    [disabled]="currentUser?.role !== 'OWNER'"
+                    class="w-full px-4 py-2 border border-border bg-surface text-sm text-text-dark disabled:bg-gray-50 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
+                  />
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-text-dark mb-1">Login Email</label>
-                    <input type="email" [value]="currentUser?.email" disabled
-                        class="w-full px-4 py-2 border border-border bg-gray-50 text-sm text-text-muted cursor-not-allowed" />
-                    <p class="text-xs text-text-muted mt-1">To change your email, please contact support.</p>
+                  <label class="block text-sm font-medium text-text-dark mb-1"
+                    >Billing Email</label
+                  >
+                  <input
+                    type="email"
+                    [(ngModel)]="orgForm.email"
+                    [disabled]="currentUser?.role !== 'OWNER'"
+                    class="w-full px-4 py-2 border border-border bg-surface text-sm text-text-dark disabled:bg-gray-50 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
+                  />
                 </div>
+              </div>
 
+              @if (currentUser?.role === "OWNER") {
                 <div class="mt-6 flex justify-end">
-                    <button (click)="updateProfile()" [disabled]="isUpdatingProfile"
-                        class="bg-primary text-white px-6 py-2.5 text-sm font-medium hover:bg-primary-hover transition-colors disabled:opacity-50">
-                        {{ isUpdatingProfile ? 'Saving...' : 'Update Profile' }}
-                    </button>
+                  <button
+                    (click)="updateOrganization()"
+                    [disabled]="orgStore.isLoading()"
+                    class="bg-primary text-white px-6 py-2.5 text-sm font-medium hover:bg-primary-hover transition-colors disabled:opacity-50"
+                  >
+                    {{ orgStore.isLoading() ? "Saving..." : "Save Changes" }}
+                  </button>
                 </div>
+              } @else {
+                <div
+                  class="mt-6 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm"
+                >
+                  Only the Organization Owner can update these settings.
+                </div>
+              }
             </div>
-            }
+          }
+        }
 
-        </div>
+        @if (activeTab === "profile") {
+          <!-- Personal Profile Form -->
+          <div
+            id="profile"
+            class="bg-surface border border-border p-6 shadow-sm"
+          >
+            <h3 class="text-lg font-semibold text-text-dark mb-1">
+              Personal Profile
+            </h3>
+            <p class="text-sm text-text-muted mb-6">
+              Update your own name and account details.
+            </p>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="block text-sm font-medium text-text-dark mb-1"
+                  >First Name</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="profileForm.firstName"
+                  class="w-full px-4 py-2 border border-border bg-surface text-sm text-text-dark focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-text-dark mb-1"
+                  >Last Name</label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="profileForm.lastName"
+                  class="w-full px-4 py-2 border border-border bg-surface text-sm text-text-dark focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-text-dark mb-1"
+                >Login Email</label
+              >
+              <input
+                type="email"
+                [value]="currentUser?.email"
+                disabled
+                class="w-full px-4 py-2 border border-border bg-gray-50 text-sm text-text-muted cursor-not-allowed"
+              />
+              <p class="text-xs text-text-muted mt-1">
+                To change your email, please contact support.
+              </p>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+              <button
+                (click)="updateProfile()"
+                [disabled]="isUpdatingProfile"
+                class="bg-primary text-white px-6 py-2.5 text-sm font-medium hover:bg-primary-hover transition-colors disabled:opacity-50"
+              >
+                {{ isUpdatingProfile ? "Saving..." : "Update Profile" }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
     </div>
+  </div>
 </div>

@@ -1,74 +1,128 @@
 @if (isOpen) {
-<div class="fixed inset-0 z-50 flex items-center justify-center" (click)="onCancel()">
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center"
+    (click)="onCancel()"
+  >
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"></div>
+    <div
+      class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+    ></div>
 
     <!-- Dialog -->
-    <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6 animate-dialog"
-        (click)="$event.stopPropagation()">
-        <!-- Icon -->
-        <div class="flex justify-center mb-4">
-            <div class="w-12 h-12 rounded-full flex items-center justify-center"
-                [class.bg-red-50]="type === 'danger'"
-                [class.bg-amber-50]="type === 'warning'"
-                [class.bg-blue-50]="type === 'info'"
-                [class.bg-green-50]="type === 'success'">
-                
-                @if (type === 'danger') {
-                    <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                } @else if (type === 'warning') {
-                    <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                } @else if (type === 'info') {
-                    <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                } @else if (type === 'success') {
-                    <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10l10-7l10 7l-10 14l-10-14z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 3l0 21" />
-                    </svg>
-                }
-            </div>
+    <div
+      class="relative bg-surface rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6 animate-dialog"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Icon -->
+      <div class="flex justify-center mb-4">
+        <div
+          class="w-12 h-12 rounded-full flex items-center justify-center"
+          [class.bg-red-50]="type === 'danger'"
+          [class.bg-amber-50]="type === 'warning'"
+          [class.bg-blue-50]="type === 'info'"
+          [class.bg-green-50]="type === 'success'"
+        >
+          @if (type === "danger") {
+            <svg
+              class="w-6 h-6 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+          } @else if (type === "warning") {
+            <svg
+              class="w-6 h-6 text-amber-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          } @else if (type === "info") {
+            <svg
+              class="w-6 h-6 text-blue-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          } @else if (type === "success") {
+            <svg
+              class="w-6 h-6 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 10l10-7l10 7l-10 14l-10-14z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 3l0 21"
+              />
+            </svg>
+          }
         </div>
+      </div>
 
-        <!-- Text -->
-        <h3 class="text-center text-lg font-semibold text-gray-900 mb-1">
-            {{ title }}
-        </h3>
-        <p class="text-center text-sm text-gray-500 mb-6 px-2">
-            {{ message }}
-        </p>
+      <!-- Text -->
+      <h3 class="text-center text-lg font-semibold text-gray-900 mb-1">
+        {{ title }}
+      </h3>
+      <p class="text-center text-sm text-gray-500 mb-6 px-2">
+        {{ message }}
+      </p>
 
-        <!-- Actions -->
-        <div class="flex gap-3">
-            <button (click)="onCancel()"
-                class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                Cancel
-            </button>
-            <button (click)="onConfirm()"
-                class="flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
-                [class.bg-red-500]="type === 'danger'"
-                [class.hover:bg-red-600]="type === 'danger'"
-                [class.focus:ring-red-500]="type === 'danger'"
-                [class.bg-amber-500]="type === 'warning'"
-                [class.hover:bg-amber-600]="type === 'warning'"
-                [class.focus:ring-amber-500]="type === 'warning'"
-                [class.bg-blue-600]="type === 'info'"
-                [class.hover:bg-blue-700]="type === 'info'"
-                [class.focus:ring-blue-600]="type === 'info'"
-                [class.bg-green-500]="type === 'success'"
-                [class.hover:bg-green-600]="type === 'success'"
-                [class.focus:ring-green-500]="type === 'success'">
-                {{ confirmText }}
-            </button>
-        </div>
+      <!-- Actions -->
+      <div class="flex gap-3">
+        <button
+          (click)="onCancel()"
+          class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="onConfirm()"
+          class="flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+          [class.bg-red-500]="type === 'danger'"
+          [class.hover:bg-red-600]="type === 'danger'"
+          [class.focus:ring-red-500]="type === 'danger'"
+          [class.bg-amber-500]="type === 'warning'"
+          [class.hover:bg-amber-600]="type === 'warning'"
+          [class.focus:ring-amber-500]="type === 'warning'"
+          [class.bg-blue-600]="type === 'info'"
+          [class.hover:bg-blue-700]="type === 'info'"
+          [class.focus:ring-blue-600]="type === 'info'"
+          [class.bg-green-500]="type === 'success'"
+          [class.hover:bg-green-600]="type === 'success'"
+          [class.focus:ring-green-500]="type === 'success'"
+        >
+          {{ confirmText }}
+        </button>
+      </div>
     </div>
-</div>
+  </div>
 }

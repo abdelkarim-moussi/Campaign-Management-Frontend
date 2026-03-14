@@ -7,9 +7,18 @@ import {
   Workflow,
   WorkflowDto,
   WorkflowTriggerType,
+  WorkflowAction,
+  ActionType,
 } from '../../services/automation.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
+
+interface ActionFormData {
+  type: ActionType | '';
+  delayHours?: number;
+  templateId?: number;
+  newStatus?: string;
+}
 
 @Component({
   selector: 'app-automation',
@@ -27,9 +36,12 @@ export class AutomationComponent implements OnInit {
   readonly store = inject(AutomationStore);
   private router = inject(Router);
 
-  showCreateModal = false;
+  showCreateForm = false;
+  editingWorkflowId: number | null = null;
   showDeleteConfirm = false;
   workflowToDelete: number | null = null;
+  formSubmitted = false;
+  searchQuery = '';
 
   newWorkflow: WorkflowDto = {
     name: '',
@@ -44,13 +56,34 @@ export class AutomationComponent implements OnInit {
     { value: 'EMAIL_OPENED', label: 'Email Opened' },
   ];
 
+  actionTypes: { value: ActionType; label: string }[] = [
+    { value: 'WAIT', label: 'Wait' },
+    { value: 'SEND_EMAIL', label: 'Send Email' },
+    { value: 'CHANGE_STATUS', label: 'Change Status' },
+  ];
+
+  statusOptions = [
+    'ACTIVE',
+    'PROSPECT',
+    'CUSTOMER',
+    'VIP',
+    'BOUNCED',
+    'UNSUBSCRIBED',
+  ];
+
+  showActionBuilder = false;
+  newAction: ActionFormData = { type: '' };
+  filteredWorkflows: Workflow[] = [];
+
   constructor() {
     effect(() => {
       if (this.store.saveSuccess() && this.store.lastCreatedId()) {
         const id = this.store.lastCreatedId();
-        this.closeCreateModal();
+        this.resetForm();
         this.router.navigate(['/automation', id]);
       }
+      this.filteredWorkflows = this.store.workflows();
+      this.filterWorkflows();
     });
   }
 
@@ -58,23 +91,50 @@ export class AutomationComponent implements OnInit {
     this.store.loadWorkflows();
   }
 
-  openCreateModal(): void {
+  filterWorkflows(): void {
+    this.filteredWorkflows = this.store.workflows().filter((w) => {
+      const matchesSearch =
+        !this.searchQuery ||
+        w.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        (w.description || '')
+          .toLowerCase()
+          .includes(this.searchQuery.toLowerCase());
+      return matchesSearch;
+    });
+  }
+
+  openCreateForm(): void {
+    this.editingWorkflowId = null;
+    this.resetForm();
+    this.showCreateForm = true;
+  }
+
+  closeCreateForm(): void {
+    this.showCreateForm = false;
+    this.resetForm();
+  }
+
+  resetForm(): void {
     this.newWorkflow = {
       name: '',
       description: '',
       triggerType: 'CONTACT_CREATED',
       actions: [],
     };
-    this.showCreateModal = true;
-  }
-
-  closeCreateModal(): void {
-    this.showCreateModal = false;
+    this.formSubmitted = false;
+    this.editingWorkflowId = null;
   }
 
   createWorkflow(): void {
-    if (!this.newWorkflow.name) return;
+    this.formSubmitted = true;
+    if (!this.isFormValid()) return;
     this.store.createWorkflow(this.newWorkflow);
+    this.resetForm();
+    this.showCreateForm = false;
+  }
+
+  isFormValid(): boolean {
+    return !!this.newWorkflow.name.trim() && !!this.newWorkflow.triggerType;
   }
 
   viewDetail(id: number): void {
@@ -111,11 +171,11 @@ export class AutomationComponent implements OnInit {
   getStatusClass(status: string): string {
     switch (status) {
       case 'ACTIVE':
-        return 'bg-green-100 text-green-700';
+        return 'bg-green-50 text-green-700 border border-green-200';
       case 'DRAFT':
-        return 'bg-yellow-100 text-yellow-700';
+        return 'bg-yellow-50 text-yellow-700 border border-yellow-200';
       case 'INACTIVE':
-        return 'bg-gray-100 text-gray-500';
+        return 'bg-gray-50 text-gray-600 border border-gray-200';
       default:
         return 'bg-border text-text-muted';
     }
@@ -123,5 +183,58 @@ export class AutomationComponent implements OnInit {
 
   getTriggerLabel(type: string): string {
     return this.triggerTypes.find((t) => t.value === type)?.label || type;
+  }
+
+  openActionBuilder(): void {
+    this.showActionBuilder = true;
+    this.newAction = { type: '' };
+  }
+
+  closeActionBuilder(): void {
+    this.showActionBuilder = false;
+    this.newAction = { type: '' };
+  }
+
+  addAction(): void {
+    if (!this.newAction.type) return;
+
+    const action: WorkflowAction = {
+      type: this.newAction.type as ActionType,
+      orderIndex: (this.newWorkflow.actions?.length || 0) + 1,
+      actionParams: this.buildActionParams(),
+    };
+
+    this.newWorkflow.actions = [...(this.newWorkflow.actions || []), action];
+    this.closeActionBuilder();
+  }
+
+  removeAction(index: number): void {
+    this.newWorkflow.actions = this.newWorkflow.actions?.filter(
+      (_, i) => i !== index,
+    );
+    // Re-order actions
+    this.newWorkflow.actions = this.newWorkflow.actions?.map((action, i) => ({
+      ...action,
+      orderIndex: i + 1,
+    }));
+  }
+
+  buildActionParams(): string {
+    switch (this.newAction.type) {
+      case 'WAIT':
+        return JSON.stringify({ delayHours: this.newAction.delayHours || 1 });
+      case 'SEND_EMAIL':
+        return JSON.stringify({ templateId: this.newAction.templateId || 1 });
+      case 'CHANGE_STATUS':
+        return JSON.stringify({
+          newStatus: this.newAction.newStatus || 'PROSPECT',
+        });
+      default:
+        return '{}';
+    }
+  }
+
+  getActionLabel(type: string): string {
+    return this.actionTypes.find((a) => a.value === type)?.label || type;
   }
 }
