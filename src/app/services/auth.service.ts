@@ -17,6 +17,13 @@ export interface RegisterRequest {
   organizationName: string;
 }
 
+export interface AcceptInvitationRequest {
+  token: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+}
+
 export interface UserDto {
   id: number;
   email: string;
@@ -84,6 +91,26 @@ export class AuthService {
   register(data: RegisterRequest): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${environment.apiUrl}/auth/register`, data)
+      .pipe(
+        tap((response) => {
+          const token =
+            response.tokens?.['accessToken'] || response.tokens?.['token'];
+          if (token) {
+            this.setAccessToken(token);
+          }
+          this.setUser(response.user);
+          this.setOrganization(response.organization);
+          this.isAuthenticatedSubject.next(true);
+        }),
+      );
+  }
+
+  acceptInvitation(request: AcceptInvitationRequest): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(
+        `${environment.apiUrl}/auth/accept-invitation`,
+        request,
+      )
       .pipe(
         tap((response) => {
           const token =

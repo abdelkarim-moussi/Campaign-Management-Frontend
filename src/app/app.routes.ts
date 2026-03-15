@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { guestGuard } from './guards/guest.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
       import('./pages/login/login.component').then((m) => m.LoginComponent),
+    canActivate: [guestGuard],
   },
   {
     path: 'register',
@@ -13,6 +15,15 @@ export const routes: Routes = [
       import('./pages/register/register.component').then(
         (m) => m.RegisterComponent,
       ),
+    canActivate: [guestGuard],
+  },
+  {
+    path: 'accept-invitation',
+    loadComponent: () =>
+      import('./pages/accept-invitation/accept-invitation.component').then(
+        (m) => m.AcceptInvitationComponent,
+      ),
+    canActivate: [guestGuard],
   },
   {
     path: '',
@@ -44,7 +55,9 @@ export const routes: Routes = [
       {
         path: 'settings',
         loadComponent: () =>
-          import('./pages/settings/settings.component').then((m) => m.SettingsComponent),
+          import('./pages/settings/settings.component').then(
+            (m) => m.SettingsComponent,
+          ),
       },
       {
         path: 'contacts',
