@@ -294,10 +294,14 @@
     }
   </div>
 
-  <!-- Count -->
-  <div class="mt-4 text-xs text-text-muted">
-    Showing {{ filteredCampaigns.length }} of {{ campaigns().length }} campaigns
-  </div>
+  <!-- Pagination -->
+  <app-pagination
+    [currentPage]="campaignStore.currentPage()"
+    [totalPages]="campaignStore.totalPages()"
+    [totalElements]="campaignStore.totalElements()"
+    [pageSize]="campaignStore.pageSize()"
+    (pageChange)="onPageChange($event)"
+  />
 
   <!-- Delete Confirmation Dialog -->
   <app-confirm-dialog [isOpen]="showDeleteConfirm" title="Delete Campaign"

@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
+import { Page } from '../models/page.model';
+
 export enum Status {
   LEAD,
   PROSPECT,
@@ -26,10 +28,13 @@ export interface Contact {
   providedIn: 'root',
 })
 export class ContactService {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getContacts(): Observable<Contact[]> {
-    return this.http.get<Contact[]>(`${environment.apiUrl}/contacts`);
+  getContacts(page = 0, size = 10): Observable<Page<Contact>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<Page<Contact>>(`${environment.apiUrl}/contacts`, { params });
   }
 
   getContact(id: number): Observable<Contact> {

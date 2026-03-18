@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
+import { Page } from '../models/page.model';
 
 export interface User {
   id: number;
@@ -31,12 +32,18 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.API_URL);
+  getUsers(page = 0, size = 10): Observable<Page<User>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<Page<User>>(this.API_URL, { params });
   }
 
-  getOrganizationUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.API_URL);
+  getOrganizationUsers(page = 0, size = 10): Observable<Page<User>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<Page<User>>(this.API_URL, { params });
   }
 
   getUser(id: number): Observable<User> {

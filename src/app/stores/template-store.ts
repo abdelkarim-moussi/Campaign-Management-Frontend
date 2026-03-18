@@ -24,6 +24,10 @@ export const TemplateStore = signalStore(
         templates: [] as Template[],
         isLoading: false,
         saveSuccess: false,
+        currentPage: 0,
+        totalPages: 0,
+        totalElements: 0,
+        pageSize: 10,
     }),
 
     withComputed(({ templates }) => ({
@@ -37,19 +41,30 @@ export const TemplateStore = signalStore(
             toastr = inject(ToastrService),
         ) => ({
             loadTemplates: rxMethod<{
+                page?: number;
+                size?: number;
                 type?: TemplateType;
                 status?: TemplateStatus;
             } | void>(
                 pipe(
                     tap(() => patchState(store, { isLoading: true })),
                     switchMap((params) => {
+                        const page = params && 'page' in params ? params.page ?? 0 : store.currentPage();
+                        const size = params && 'size' in params ? params.size ?? 10 : store.pageSize();
                         const type =
                             params && 'type' in params ? params.type : undefined;
                         const status =
                             params && 'status' in params ? params.status : undefined;
-                        return templateService.getTemplates(type, status).pipe(
-                            tap((templates) =>
-                                patchState(store, { templates, isLoading: false }),
+                        return templateService.getTemplates(page, size, type, status).pipe(
+                            tap((response) =>
+                                patchState(store, {
+                                    templates: response.content,
+                                    currentPage: response.number,
+                                    totalPages: response.totalPages,
+                                    totalElements: response.totalElements,
+                                    pageSize: response.size,
+                                    isLoading: false,
+                                }),
                             ),
                             catchError((error) => {
                                 toastr.error('Failed to load templates');
@@ -66,12 +81,11 @@ export const TemplateStore = signalStore(
                     tap(() => patchState(store, { isLoading: true })),
                     switchMap((dto) =>
                         templateService.createTemplate(dto).pipe(
-                            tap((savedTemplate) => {
-                                patchState(store, (state) => ({
-                                    templates: [...state.templates, savedTemplate],
+                            tap(() => {
+                                patchState(store, {
                                     isLoading: false,
                                     saveSuccess: true,
-                                }));
+                                });
                                 toastr.success('Template created successfully');
                             }),
                             catchError((error) => {
@@ -115,10 +129,7 @@ export const TemplateStore = signalStore(
                     switchMap((id) =>
                         templateService.deleteTemplate(id).pipe(
                             tap(() => {
-                                patchState(store, (state) => ({
-                                    templates: state.templates.filter((t) => t.id !== id),
-                                    isLoading: false,
-                                }));
+                                patchState(store, { isLoading: false });
                                 toastr.success('Template deleted successfully');
                             }),
                             catchError((error) => {

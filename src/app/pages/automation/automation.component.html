@@ -232,7 +232,7 @@
         class="flex items-center justify-between pt-4 border-t border-border"
       >
         <small class="text-xs text-text-muted italic"
-          >{{ newWorkflow.actions?.length || 0 }} action(s) added</small
+          >{{ newWorkflow.actions.length || 0 }} action(s) added</small
         >
         <div class="flex gap-2">
           <button
@@ -367,6 +367,15 @@
       </tbody>
     </table>
   </div>
+
+  <!-- Pagination -->
+  <app-pagination
+    [currentPage]="store.currentPage()"
+    [totalPages]="store.totalPages()"
+    [totalElements]="store.totalElements()"
+    [pageSize]="store.pageSize()"
+    (pageChange)="onPageChange($event)"
+  />
 
   <!-- Confirm Delete -->
   <app-confirm-dialog

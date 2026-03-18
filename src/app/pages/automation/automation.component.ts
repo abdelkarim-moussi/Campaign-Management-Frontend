@@ -12,6 +12,7 @@ import {
 } from '../../services/automation.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 interface ActionFormData {
   type: ActionType | '';
@@ -28,6 +29,7 @@ interface ActionFormData {
     FormsModule,
     ConfirmDialogComponent,
     LoadingOverlayComponent,
+    PaginationComponent,
   ],
   templateUrl: './automation.component.html',
   styleUrl: './automation.component.css',
@@ -88,7 +90,7 @@ export class AutomationComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.store.loadWorkflows();
+    this.store.loadWorkflows({ page: 0 });
   }
 
   filterWorkflows(): void {
@@ -150,6 +152,7 @@ export class AutomationComponent implements OnInit {
   executeDelete(): void {
     if (this.workflowToDelete) {
       this.store.deleteWorkflow(this.workflowToDelete);
+      setTimeout(() => this.store.loadWorkflows({ page: this.store.currentPage() }), 300);
     }
     this.cancelDelete();
   }
@@ -166,6 +169,10 @@ export class AutomationComponent implements OnInit {
     } else {
       this.store.activateWorkflow(workflow.id);
     }
+  }
+
+  onPageChange(page: number): void {
+    this.store.loadWorkflows({ page });
   }
 
   getStatusClass(status: string): string {
@@ -200,7 +207,7 @@ export class AutomationComponent implements OnInit {
 
     const action: WorkflowAction = {
       type: this.newAction.type as ActionType,
-      orderIndex: (this.newWorkflow.actions?.length || 0) + 1,
+      orderIndex: (this.newWorkflow.actions.length || 0) + 1,
       actionParams: this.buildActionParams(),
     };
 
@@ -209,11 +216,11 @@ export class AutomationComponent implements OnInit {
   }
 
   removeAction(index: number): void {
-    this.newWorkflow.actions = this.newWorkflow.actions?.filter(
+    this.newWorkflow.actions = this.newWorkflow.actions.filter(
       (_, i) => i !== index,
     );
     // Re-order actions
-    this.newWorkflow.actions = this.newWorkflow.actions?.map((action, i) => ({
+    this.newWorkflow.actions = this.newWorkflow.actions.map((action, i) => ({
       ...action,
       orderIndex: i + 1,
     }));

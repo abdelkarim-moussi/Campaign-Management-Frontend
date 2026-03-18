@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
+import { Page } from '../models/page.model';
 
 export type TemplateType = 'SMS' | 'EMAIL';
 export type TemplateStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED';
@@ -38,13 +39,17 @@ export class TemplateService {
     constructor(private http: HttpClient) { }
 
     getTemplates(
+        page = 0,
+        size = 10,
         type?: TemplateType,
         status?: TemplateStatus,
-    ): Observable<Template[]> {
-        let params = new HttpParams();
+    ): Observable<Page<Template>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
         if (type) params = params.set('type', type);
         if (status) params = params.set('status', status);
-        return this.http.get<Template[]>(this.baseUrl, { params });
+        return this.http.get<Page<Template>>(this.baseUrl, { params });
     }
 
     getTemplate(id: string): Observable<Template> {

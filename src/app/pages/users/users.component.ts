@@ -6,11 +6,12 @@ import { AuthService } from '../../services/auth.service';
 import { UserStore } from '../../stores/user.store';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [FormsModule, CommonModule, ConfirmDialogComponent, LoadingOverlayComponent],
+  imports: [FormsModule, CommonModule, ConfirmDialogComponent, LoadingOverlayComponent, PaginationComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css',
 })
@@ -60,7 +61,7 @@ export class UsersComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = this.authService.getUser();
-    this.userStore.loadUsers();
+    this.userStore.loadUsers({ page: 0 });
   }
 
   getDisplayName(user: User): string {
@@ -79,7 +80,7 @@ export class UsersComponent implements OnInit {
       onSuccess: () => {
         this.newInvite = { email: '', role: 'MEMBER' };
         this.showInviteForm = false;
-        this.userStore.loadUsers();
+        this.userStore.loadUsers({ page: this.userStore.currentPage() });
       }
     });
   }
@@ -92,6 +93,7 @@ export class UsersComponent implements OnInit {
   deleteUser(): void {
     if (!this.deleteTargetId) return;
     this.userStore.deleteUser(this.deleteTargetId);
+    setTimeout(() => this.userStore.loadUsers({ page: this.userStore.currentPage() }), 300);
     this.cancelDelete();
   }
 
@@ -124,5 +126,9 @@ export class UsersComponent implements OnInit {
   cancelRoleUpdate(): void {
     this.showRoleConfirm = false;
     this.roleUpdateTarget = null;
+  }
+
+  onPageChange(page: number): void {
+    this.userStore.loadUsers({ page });
   }
 }

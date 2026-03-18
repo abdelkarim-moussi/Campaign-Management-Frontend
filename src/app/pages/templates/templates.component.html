@@ -258,10 +258,14 @@
     }
   </div>
 
-  <!-- Count -->
-  <div class="mt-4 text-xs text-text-muted">
-    Showing {{ filteredTemplates.length }} of {{ templates().length }} templates
-  </div>
+  <!-- Pagination -->
+  <app-pagination
+    [currentPage]="templateStore.currentPage()"
+    [totalPages]="templateStore.totalPages()"
+    [totalElements]="templateStore.totalElements()"
+    [pageSize]="templateStore.pageSize()"
+    (pageChange)="onPageChange($event)"
+  />
 
   <!-- Delete Confirmation Dialog -->
   <app-confirm-dialog

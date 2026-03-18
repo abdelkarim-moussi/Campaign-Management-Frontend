@@ -28,6 +28,10 @@ interface AutomationState {
   isLoading: boolean;
   saveSuccess: boolean;
   lastCreatedId: number | null;
+  currentPage: number;
+  totalPages: number;
+  totalElements: number;
+  pageSize: number;
 }
 
 const initialState: AutomationState = {
@@ -40,6 +44,10 @@ const initialState: AutomationState = {
   isLoading: false,
   saveSuccess: false,
   lastCreatedId: null,
+  currentPage: 0,
+  totalPages: 0,
+  totalElements: 0,
+  pageSize: 10,
 };
 
 export const AutomationStore = signalStore(
@@ -57,21 +65,30 @@ export const AutomationStore = signalStore(
       automationService = inject(AutomationService),
       toastr = inject(ToastrService),
     ) => ({
-      loadWorkflows: rxMethod<void>(
+      loadWorkflows: rxMethod<{ page?: number; size?: number } | void>(
         pipe(
           tap(() => patchState(store, { isLoading: true })),
-          switchMap(() =>
-            automationService.getAllWorkflows().pipe(
-              tap((workflows) =>
-                patchState(store, { workflows, isLoading: false }),
+          switchMap((params) => {
+            const page = params && 'page' in params ? params.page ?? 0 : store.currentPage();
+            const size = params && 'size' in params ? params.size ?? 10 : store.pageSize();
+            return automationService.getAllWorkflows(page, size).pipe(
+              tap((response) =>
+                patchState(store, {
+                  workflows: response.content,
+                  currentPage: response.number,
+                  totalPages: response.totalPages,
+                  totalElements: response.totalElements,
+                  pageSize: response.size,
+                  isLoading: false,
+                }),
               ),
               catchError(() => {
                 toastr.error('Failed to load workflows');
-                patchState(store, { isLoading: false });  
+                patchState(store, { isLoading: false });
                 return EMPTY;
               }),
-            ),
-          ),
+            );
+          }),
         ),
       ),
 
@@ -117,12 +134,11 @@ export const AutomationStore = signalStore(
           switchMap((dto) =>
             automationService.createWorkflow(dto).pipe(
               tap((newWorkflow) => {
-                patchState(store, (state) => ({
-                  workflows: [...state.workflows, newWorkflow],
+                patchState(store, {
                   isLoading: false,
                   saveSuccess: true,
                   lastCreatedId: newWorkflow.id,
-                }));
+                });
                 toastr.success('Workflow created successfully');
               }),
               catchError(() => {
@@ -217,10 +233,7 @@ export const AutomationStore = signalStore(
           switchMap((id) =>
             automationService.deleteWorkflow(id).pipe(
               tap(() => {
-                patchState(store, (state) => ({
-                  workflows: state.workflows.filter((w) => w.id !== id),
-                  isLoading: false,
-                }));
+                patchState(store, { isLoading: false });
                 toastr.success('Workflow deleted');
               }),
               catchError(() => {

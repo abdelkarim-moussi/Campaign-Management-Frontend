@@ -232,9 +232,14 @@
     </table>
   </div>
 
-  <div class="mt-4 text-xs text-text-muted">
-    Showing {{ filteredUsers().length }} members
-  </div>
+  <!-- Pagination -->
+  <app-pagination
+    [currentPage]="userStore.currentPage()"
+    [totalPages]="userStore.totalPages()"
+    [totalElements]="userStore.totalElements()"
+    [pageSize]="userStore.pageSize()"
+    (pageChange)="onPageChange($event)"
+  />
 
   <app-confirm-dialog
     [isOpen]="showDeleteConfirm"

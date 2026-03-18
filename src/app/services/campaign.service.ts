@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment.development';
+import { Page } from '../models/page.model';
 
 export type CampaignStatus = 'DRAFT' | 'SCHEDULED' | 'SENT';
 export type CampaignChannel = 'EMAIL' | 'SMS';
@@ -114,10 +115,12 @@ export class CampaignService {
 
   constructor(private http: HttpClient) {}
 
-  getCampaigns(status?: CampaignStatus): Observable<Campaign[]> {
-    let params = new HttpParams();
+  getCampaigns(page = 0, size = 10, status?: CampaignStatus): Observable<Page<Campaign>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
     if (status) params = params.set('status', status);
-    return this.http.get<Campaign[]>(this.baseUrl, { params });
+    return this.http.get<Page<Campaign>>(this.baseUrl, { params });
   }
 
   getCampaign(id: number): Observable<Campaign> {

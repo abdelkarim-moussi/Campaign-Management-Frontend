@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { Page } from '../models/page.model';
 
 export type WorkflowStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
 export type WorkflowTriggerType =
@@ -107,8 +108,11 @@ export class AutomationService {
     return this.http.put<Workflow>(`${this.apiUrl}/${id}`, dto);
   }
 
-  getAllWorkflows(): Observable<Workflow[]> {
-    return this.http.get<Workflow[]>(this.apiUrl);
+  getAllWorkflows(page = 0, size = 10): Observable<Page<Workflow>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<Page<Workflow>>(this.apiUrl, { params });
   }
 
   getActiveWorkflows(): Observable<Workflow[]> {

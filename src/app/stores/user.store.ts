@@ -9,12 +9,20 @@ interface UserState {
     users: UserDto[];
     isLoading: boolean;
     error: string | null;
+    currentPage: number;
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
 }
 
 const initialState: UserState = {
     users: [],
     isLoading: false,
     error: null,
+    currentPage: 0,
+    totalPages: 0,
+    totalElements: 0,
+    pageSize: 10,
 };
 
 export const UserStore = signalStore(
@@ -29,13 +37,22 @@ export const UserStore = signalStore(
             userService = inject(UserService),
             toastr = inject(ToastrService)
         ) => ({
-            loadUsers: rxMethod<void>(
+            loadUsers: rxMethod<{ page?: number; size?: number } | void>(
                 pipe(
                     tap(() => patchState(store, { isLoading: true, error: null })),
-                    switchMap(() => {
-                        return userService.getOrganizationUsers().pipe(
-                            tap((users) => {
-                                patchState(store, { users, isLoading: false });
+                    switchMap((params) => {
+                        const page = params && 'page' in params ? params.page ?? 0 : store.currentPage();
+                        const size = params && 'size' in params ? params.size ?? 10 : store.pageSize();
+                        return userService.getOrganizationUsers(page, size).pipe(
+                            tap((response) => {
+                                patchState(store, {
+                                    users: response.content,
+                                    currentPage: response.number,
+                                    totalPages: response.totalPages,
+                                    totalElements: response.totalElements,
+                                    pageSize: response.size,
+                                    isLoading: false,
+                                });
                             }),
                             catchError((err) => {
                                 patchState(store, {
@@ -104,10 +121,7 @@ export const UserStore = signalStore(
                     switchMap((userId) => {
                         return userService.deleteUser(userId).pipe(
                             tap(() => {
-                                patchState(store, {
-                                    users: store.users().filter(u => u.id !== userId),
-                                    isLoading: false
-                                });
+                                patchState(store, { isLoading: false });
                                 toastr.success('User removed from organization.', 'Success');
                             }),
                             catchError((err) => {

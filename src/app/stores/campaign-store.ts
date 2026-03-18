@@ -24,6 +24,10 @@ export const CampaignStore = signalStore(
         campaigns: [] as Campaign[],
         isLoading: false,
         saveSuccess: false,
+        currentPage: 0,
+        totalPages: 0,
+        totalElements: 0,
+        pageSize: 10,
     }),
 
     withComputed(({ campaigns }) => ({
@@ -37,18 +41,24 @@ export const CampaignStore = signalStore(
             analyticsStore = inject(AnalyticsStore),
             toastr = inject(ToastrService),
         ) => ({
-            loadCampaigns: rxMethod<{ status?: CampaignStatus } | void>(
+            loadCampaigns: rxMethod<{ page?: number; size?: number; status?: CampaignStatus } | void>(
                 pipe(
                     tap(() => patchState(store, { isLoading: true })),
                     switchMap((params) => {
+                        const page = params && 'page' in params ? params.page ?? 0 : store.currentPage();
+                        const size = params && 'size' in params ? params.size ?? 10 : store.pageSize();
                         const status =
                             params && 'status' in params
                                 ? params.status
                                 : undefined;
-                        return campaignService.getCampaigns(status).pipe(
-                            tap((campaigns) =>
+                        return campaignService.getCampaigns(page, size, status).pipe(
+                            tap((response) =>
                                 patchState(store, {
-                                    campaigns,
+                                    campaigns: response.content,
+                                    currentPage: response.number,
+                                    totalPages: response.totalPages,
+                                    totalElements: response.totalElements,
+                                    pageSize: response.size,
                                     isLoading: false,
                                 }),
                             ),
@@ -67,15 +77,11 @@ export const CampaignStore = signalStore(
                     tap(() => patchState(store, { isLoading: true })),
                     switchMap((dto) =>
                         campaignService.createCampaign(dto).pipe(
-                            tap((savedCampaign) => {
-                                patchState(store, (state) => ({
-                                    campaigns: [
-                                        ...state.campaigns,
-                                        savedCampaign,
-                                    ],
+                            tap(() => {
+                                patchState(store, {
                                     isLoading: false,
                                     saveSuccess: true,
-                                }));
+                                });
                                 toastr.success(
                                     'Campaign created successfully',
                                 );
@@ -143,12 +149,7 @@ export const CampaignStore = signalStore(
                     switchMap((id) =>
                         campaignService.deleteCampaign(id).pipe(
                             tap(() => {
-                                patchState(store, (state) => ({
-                                    campaigns: state.campaigns.filter(
-                                        (c) => c.id !== id,
-                                    ),
-                                    isLoading: false,
-                                }));
+                                patchState(store, { isLoading: false });
                                 toastr.success(
                                     'Campaign deleted successfully',
                                 );
@@ -168,10 +169,14 @@ export const CampaignStore = signalStore(
                     tap(() => patchState(store, { isLoading: true })),
                     exhaustMap((id) =>
                         campaignService.sendCampaign(id).pipe(
-                            switchMap(() => campaignService.getCampaigns()),
-                            tap((campaigns) => {
+                            switchMap(() => campaignService.getCampaigns(store.currentPage(), store.pageSize())),
+                            tap((response) => {
                                 patchState(store, {
-                                    campaigns,
+                                    campaigns: response.content,
+                                    currentPage: response.number,
+                                    totalPages: response.totalPages,
+                                    totalElements: response.totalElements,
+                                    pageSize: response.size,
                                     isLoading: false,
                                 });
                                 analyticsStore.loadDashboard();

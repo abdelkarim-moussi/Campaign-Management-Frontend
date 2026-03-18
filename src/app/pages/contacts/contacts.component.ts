@@ -5,10 +5,11 @@ import { ContactStore } from '../../stores/contact-store';
 import { CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
   selector: 'app-contacts',
-  imports: [FormsModule, CommonModule, ConfirmDialogComponent, LoadingOverlayComponent],
+  imports: [FormsModule, CommonModule, ConfirmDialogComponent, LoadingOverlayComponent, PaginationComponent],
   templateUrl: './contacts.component.html',
   styleUrl: './contacts.component.css',
 })
@@ -44,7 +45,7 @@ export class ContactsComponent implements OnInit {
       this.filteredContacts = this.contacts();
 
       if (this.contactStore.saveSuccess()) {
-        this.filterContacts();
+        this.contactStore.loadContacts({ page: this.contactStore.currentPage() });
         this.newContact = {
           firstName: '',
           lastName: '',
@@ -61,7 +62,7 @@ export class ContactsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.contactStore.loadContacts();
+    this.contactStore.loadContacts({ page: 0 });
   }
 
   filterContacts(): void {
@@ -112,6 +113,8 @@ export class ContactsComponent implements OnInit {
   confirmDelete(): void {
     if (this.deleteTargetId) {
       this.contactStore.removeContact(this.deleteTargetId);
+      // Reload current page after delete
+      setTimeout(() => this.contactStore.loadContacts({ page: this.contactStore.currentPage() }), 300);
     }
     this.cancelDelete();
   }
@@ -138,6 +141,10 @@ export class ContactsComponent implements OnInit {
   cancelEdit(): void {
     this.editingContactId = null;
     this.editContact = {};
+  }
+
+  onPageChange(page: number): void {
+    this.contactStore.loadContacts({ page });
   }
 
   onFileImport(event: Event): void {

@@ -13,10 +13,11 @@ import { TemplateStore } from '../../stores/template-store';
 import { ContactStore } from '../../stores/contact-store';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
     selector: 'app-campaigns',
-    imports: [FormsModule, CommonModule, ConfirmDialogComponent, LoadingOverlayComponent],
+    imports: [FormsModule, CommonModule, ConfirmDialogComponent, LoadingOverlayComponent, PaginationComponent],
     templateUrl: './campaigns.component.html',
     styleUrl: './campaigns.component.css',
 })
@@ -64,13 +65,14 @@ export class CampaignsComponent implements OnInit {
             this.filterCampaigns();
 
             if (this.campaignStore.saveSuccess()) {
+                this.campaignStore.loadCampaigns({ page: this.campaignStore.currentPage() });
                 this.resetForm();
             }
         });
     }
 
     ngOnInit(): void {
-        this.campaignStore.loadCampaigns();
+        this.campaignStore.loadCampaigns({ page: 0 });
         this.templateStore.loadTemplates();
         this.contactStore.loadContacts();
     }
@@ -141,6 +143,7 @@ export class CampaignsComponent implements OnInit {
     confirmDelete(): void {
         if (this.deleteTargetId) {
             this.campaignStore.removeCampaign(this.deleteTargetId);
+            setTimeout(() => this.campaignStore.loadCampaigns({ page: this.campaignStore.currentPage() }), 300);
         }
         this.cancelDelete();
     }
@@ -213,6 +216,10 @@ export class CampaignsComponent implements OnInit {
                 c.name.toLowerCase() === name &&
                 c.id !== this.editingCampaignId,
         );
+    }
+
+    onPageChange(page: number): void {
+        this.campaignStore.loadCampaigns({ page });
     }
 
     getStatusClass(status: CampaignStatus): string {

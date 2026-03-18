@@ -18,6 +18,10 @@ export const ContactStore = signalStore(
     contacts: [] as Contact[],
     isLoading: false,
     saveSuccess: false,
+    currentPage: 0,
+    totalPages: 0,
+    totalElements: 0,
+    pageSize: 10,
   }),
 
   withComputed(({ contacts }) => ({
@@ -30,18 +34,27 @@ export const ContactStore = signalStore(
       contactService = inject(ContactService),
       toastr = inject(ToastrService),
     ) => ({
-      loadContacts: rxMethod<void>(
+      loadContacts: rxMethod<{ page?: number; size?: number } | void>(
         pipe(
           tap(() => patchState(store, { isLoading: true })),
-          concatMap(() =>
-            contactService
-              .getContacts()
+          concatMap((params) => {
+            const page = params && 'page' in params ? params.page ?? 0 : store.currentPage();
+            const size = params && 'size' in params ? params.size ?? 10 : store.pageSize();
+            return contactService
+              .getContacts(page, size)
               .pipe(
-                tap((contacts) =>
-                  patchState(store, { contacts, isLoading: false }),
+                tap((response) =>
+                  patchState(store, {
+                    contacts: response.content,
+                    currentPage: response.number,
+                    totalPages: response.totalPages,
+                    totalElements: response.totalElements,
+                    pageSize: response.size,
+                    isLoading: false,
+                  }),
                 ),
-              ),
-          ),
+              );
+          }),
         ),
       ),
 
@@ -50,12 +63,11 @@ export const ContactStore = signalStore(
           tap(() => patchState(store, { isLoading: true })),
           concatMap((newContact) =>
             contactService.createContact(newContact).pipe(
-              tap((savedContact) => {
-                patchState(store, (state) => ({
-                  contacts: [...state.contacts, savedContact],
+              tap(() => {
+                patchState(store, {
                   isLoading: false,
                   saveSuccess: true,
-                }));
+                });
 
                 toastr.success('Contact Saved Succefully');
               }),
@@ -75,11 +87,10 @@ export const ContactStore = signalStore(
           switchMap((contacts) =>
             contactService.createContacts(contacts).pipe(
               tap((savedContacts) => {
-                patchState(store, (state) => ({
-                  contacts: [...state.contacts, ...savedContacts],
+                patchState(store, {
                   isLoading: false,
                   saveSuccess: true,
-                }));
+                });
                 toastr.success(
                   `${savedContacts.length} contacts imported successfully`,
                 );
@@ -125,10 +136,9 @@ export const ContactStore = signalStore(
           switchMap((id) =>
             contactService.deleteContact(id).pipe(
               tap(() => {
-                patchState(store, (state) => ({
-                  contacts: state.contacts.filter((c) => c.id !== id),
+                patchState(store, {
                   isLoading: false,
-                }));
+                });
                 toastr.success('Contact deleted successfully');
               }),
               catchError((error) => {

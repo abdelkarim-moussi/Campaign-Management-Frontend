@@ -11,10 +11,11 @@ import { TemplateStore } from '../../stores/template-store';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { QuillModule } from 'ngx-quill';
 import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
   selector: 'app-templates',
-  imports: [FormsModule, CommonModule, ConfirmDialogComponent, QuillModule, LoadingOverlayComponent],
+  imports: [FormsModule, CommonModule, ConfirmDialogComponent, QuillModule, LoadingOverlayComponent, PaginationComponent],
   templateUrl: './templates.component.html',
   styleUrl: './templates.component.css',
 })
@@ -58,13 +59,14 @@ export class TemplatesComponent implements OnInit {
       this.filterTemplates();
 
       if (this.templateStore.saveSuccess()) {
+        this.templateStore.loadTemplates({ page: this.templateStore.currentPage() });
         this.resetForm();
       }
     });
   }
 
   ngOnInit(): void {
-    this.templateStore.loadTemplates();
+    this.templateStore.loadTemplates({ page: 0 });
   }
 
   filterTemplates(): void {
@@ -123,6 +125,7 @@ export class TemplatesComponent implements OnInit {
   confirmDelete(): void {
     if (this.deleteTargetId) {
       this.templateStore.removeTemplate(this.deleteTargetId);
+      setTimeout(() => this.templateStore.loadTemplates({ page: this.templateStore.currentPage() }), 300);
     }
     this.cancelDelete();
   }
@@ -144,6 +147,10 @@ export class TemplatesComponent implements OnInit {
     this.formData = { name: '', subject: '', content: '', type: 'EMAIL' };
     this.showCreateForm = false;
     this.editingTemplateId = null;
+  }
+
+  onPageChange(page: number): void {
+    this.templateStore.loadTemplates({ page });
   }
 
   getStatusClass(status: TemplateStatus): string {

@@ -52,6 +52,18 @@ export interface AuthResponse {
   organization: OrganizationDto;
 }
 
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
+  refreshExpiresIn: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -78,8 +90,12 @@ export class AuthService {
         tap((response) => {
           const token =
             response.tokens?.['accessToken'] || response.tokens?.['token'];
+          const refreshToken = response.tokens?.['refreshToken'];
           if (token) {
             this.setAccessToken(token);
+          }
+          if (refreshToken) {
+            this.setRefreshToken(refreshToken);
           }
           this.setUser(response.user);
           this.setOrganization(response.organization);
@@ -95,8 +111,12 @@ export class AuthService {
         tap((response) => {
           const token =
             response.tokens?.['accessToken'] || response.tokens?.['token'];
+          const refreshToken = response.tokens?.['refreshToken'];
           if (token) {
             this.setAccessToken(token);
+          }
+          if (refreshToken) {
+            this.setRefreshToken(refreshToken);
           }
           this.setUser(response.user);
           this.setOrganization(response.organization);
@@ -115,8 +135,12 @@ export class AuthService {
         tap((response) => {
           const token =
             response.tokens?.['accessToken'] || response.tokens?.['token'];
+          const refreshToken = response.tokens?.['refreshToken'];
           if (token) {
             this.setAccessToken(token);
+          }
+          if (refreshToken) {
+            this.setRefreshToken(refreshToken);
           }
           this.setUser(response.user);
           this.setOrganization(response.organization);
@@ -136,6 +160,27 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem(this.accessTokenKey);
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(this.refreshTokenKey);
+  }
+
+  refreshToken(
+    refreshTokenRequest: RefreshTokenRequest,
+  ): Observable<RefreshTokenResponse> {
+    return this.http
+      .post<RefreshTokenResponse>(
+        `${environment.apiUrl}/auth/refresh`,
+        refreshTokenRequest,
+      )
+      .pipe(
+        tap((response) => {
+          this.setAccessToken(response.accessToken);
+          this.setRefreshToken(response.refreshToken);
+          this.isAuthenticatedSubject.next(true);
+        }),
+      );
   }
 
   getUser(): UserDto | null {
@@ -158,6 +203,10 @@ export class AuthService {
 
   private setAccessToken(token: string): void {
     localStorage.setItem(this.accessTokenKey, token);
+  }
+
+  private setRefreshToken(token: string): void {
+    localStorage.setItem(this.refreshTokenKey, token);
   }
 
   private setUser(user: UserDto): void {
