@@ -12,10 +12,11 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 import { QuillModule } from 'ngx-quill';
 import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
+import { HasRoleDirective } from '../../directives/has-role.directive';
 
 @Component({
   selector: 'app-templates',
-  imports: [FormsModule, CommonModule, ConfirmDialogComponent, QuillModule, LoadingOverlayComponent, PaginationComponent],
+  imports: [FormsModule, CommonModule, ConfirmDialogComponent, QuillModule, LoadingOverlayComponent, PaginationComponent, HasRoleDirective],
   templateUrl: './templates.component.html',
   styleUrl: './templates.component.css',
 })
@@ -59,6 +60,7 @@ export class TemplatesComponent implements OnInit {
       this.filterTemplates();
 
       if (this.templateStore.saveSuccess()) {
+        this.templateStore.resetSaveSuccess();
         this.templateStore.loadTemplates({ page: this.templateStore.currentPage() });
         this.resetForm();
       }

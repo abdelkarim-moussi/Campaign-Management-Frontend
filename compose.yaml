@@ -1,0 +1,7 @@
+services:
+  angular-app:
+    build:
+      context: .
+    ports:
+      - "4200:8080" # Map host 4200 to container 8080
+    restart: always

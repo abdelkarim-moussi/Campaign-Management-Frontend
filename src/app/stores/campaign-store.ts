@@ -192,6 +192,10 @@ export const CampaignStore = signalStore(
                     ),
                 ),
             ),
+
+            resetSaveSuccess() {
+                patchState(store, { saveSuccess: false });
+            },
         }),
     ),
 );

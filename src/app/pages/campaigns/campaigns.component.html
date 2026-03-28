@@ -10,7 +10,7 @@
         Create and manage your marketing campaigns
       </p>
     </div>
-    <button (click)="showCreateForm = !showCreateForm; editingCampaignId = null"
+    <button *appHasRole="['OWNER', 'ADMIN', 'MEMBER']" (click)="showCreateForm = !showCreateForm; editingCampaignId = null"
       class="bg-primary text-white px-5 py-2.5 text-sm font-medium hover:bg-primary-hover transition-colors">
       + Create Campaign
     </button>
@@ -264,19 +264,19 @@
       <!-- Right: Actions -->
       <div class="flex flex-col justify-center items-center gap-1 px-4 border-l border-border bg-primary-light/30">
         @if (campaign.status === "DRAFT" || campaign.status === "SCHEDULED") {
-        <button (click)="startEdit(campaign)" title="Edit"
+        <button *appHasRole="['OWNER', 'ADMIN', 'MEMBER']" (click)="startEdit(campaign)" title="Edit"
           class="w-8 h-8 flex items-center justify-center text-text-muted hover:text-primary hover:bg-primary-light transition-colors text-sm">
           &#x270E;
         </button>
         }
         @if (campaign.status !== "SENT") {
-        <button (click)="sendCampaign(campaign.id!)" title="Send"
+        <button *appHasRole="['OWNER', 'ADMIN']" (click)="sendCampaign(campaign.id!)" title="Send"
           class="w-8 h-8 flex items-center justify-center text-text-muted hover:text-green-600 hover:bg-green-50 transition-colors text-sm">
           &#x27A4;
         </button>
         }
         @if (campaign.status !== "SENT") {
-        <button (click)="deleteCampaign(campaign.id!)" title="Delete"
+        <button *appHasRole="['OWNER', 'ADMIN']" (click)="deleteCampaign(campaign.id!)" title="Delete"
           class="w-8 h-8 flex items-center justify-center text-text-muted hover:text-danger hover:bg-red-50 transition-colors text-sm">
           &#x2716;
         </button>

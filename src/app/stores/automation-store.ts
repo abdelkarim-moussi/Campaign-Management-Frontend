@@ -307,6 +307,10 @@ export const AutomationStore = signalStore(
         stats: null,
         saveSuccess: false
       }),
+
+      resetSaveSuccess() {
+        patchState(store, { saveSuccess: false, lastCreatedId: null });
+      },
     }),
   ),
 );

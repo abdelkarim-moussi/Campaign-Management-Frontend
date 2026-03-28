@@ -10,7 +10,7 @@
         Design and manage automated customer journeys
       </p>
     </div>
-    <button
+    <button *appHasRole="['OWNER', 'ADMIN']"
       (click)="showCreateForm = !showCreateForm; editingWorkflowId = null"
       class="bg-primary text-white px-5 py-2.5 text-sm font-medium hover:bg-primary-hover transition-colors"
     >
@@ -338,13 +338,13 @@
               </div>
             </td>
             <td class="px-6 py-4 text-right" (click)="$event.stopPropagation()">
-              <button
+              <button *appHasRole="['OWNER', 'ADMIN']"
                 (click)="toggleStatus(workflow, $event)"
                 class="text-xs font-medium px-2 py-1 text-primary hover:text-primary-hover transition-colors mr-2"
               >
                 {{ workflow.status === "ACTIVE" ? "Deactivate" : "Activate" }}
               </button>
-              <button
+              <button *appHasRole="['OWNER', 'ADMIN']"
                 (click)="confirmDelete(workflow.id, $event)"
                 class="text-xs font-medium px-2 py-1 text-danger hover:bg-danger/10 transition-colors"
               >

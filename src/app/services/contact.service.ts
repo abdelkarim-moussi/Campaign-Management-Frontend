@@ -11,15 +11,15 @@ export enum Status {
 }
 
 export interface Contact {
-  id?: string;
+  id?: number;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
   company: string;
-  segment: string;
+  group: string;
   status: string;
-  tagIds: string[];
+  tagIds: number[];
   fullName?: string;
   createdAt?: string;
 }
@@ -28,7 +28,7 @@ export interface Contact {
   providedIn: 'root',
 })
 export class ContactService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getContacts(page = 0, size = 10): Observable<Page<Contact>> {
     const params = new HttpParams()
@@ -49,14 +49,14 @@ export class ContactService {
     return this.http.post<Contact[]>(`${environment.apiUrl}/contacts/import`, contacts);
   }
 
-  updateContact(id: string, contact: Partial<Contact>): Observable<Contact> {
+  updateContact(id: number, contact: Partial<Contact>): Observable<Contact> {
     return this.http.patch<Contact>(
       `${environment.apiUrl}/contacts/${id}`,
       contact,
     );
   }
 
-  deleteContact(id: string): Observable<void> {
+  deleteContact(id: number): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/contacts/${id}`);
   }
 }

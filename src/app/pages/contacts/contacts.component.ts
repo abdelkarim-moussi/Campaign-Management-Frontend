@@ -6,10 +6,18 @@ import { CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
+import { HasRoleDirective } from '../../directives/has-role.directive';
 
 @Component({
   selector: 'app-contacts',
-  imports: [FormsModule, CommonModule, ConfirmDialogComponent, LoadingOverlayComponent, PaginationComponent],
+  imports: [
+    FormsModule,
+    CommonModule,
+    ConfirmDialogComponent,
+    LoadingOverlayComponent,
+    PaginationComponent,
+    HasRoleDirective,
+  ],
   templateUrl: './contacts.component.html',
   styleUrl: './contacts.component.css',
 })
@@ -19,9 +27,9 @@ export class ContactsComponent implements OnInit {
   groupFilter = '';
   showAddForm = false;
   showDeleteConfirm = false;
-  deleteTargetId: string | null = null;
+  deleteTargetId: number | null = null;
 
-  editingContactId: string | null = null;
+  editingContactId: number | null = null;
   editContact: Partial<Contact> = {};
 
   tagsInput = '';
@@ -31,8 +39,8 @@ export class ContactsComponent implements OnInit {
     lastName: '',
     email: '',
     phone: '',
-    segment: '',
-    status: '',
+    group: 'GENERAL',
+    status: 'LEAD',
     company: 'uncknown',
     tagIds: [],
   };
@@ -45,14 +53,17 @@ export class ContactsComponent implements OnInit {
       this.filteredContacts = this.contacts();
 
       if (this.contactStore.saveSuccess()) {
-        this.contactStore.loadContacts({ page: this.contactStore.currentPage() });
+        this.contactStore.resetSaveSuccess();
+        this.contactStore.loadContacts({
+          page: this.contactStore.currentPage(),
+        });
         this.newContact = {
           firstName: '',
           lastName: '',
           email: '',
           phone: '',
-          segment: '',
-          status: '',
+          group: 'GENERAL',
+          status: 'LEAD',
           company: '',
           tagIds: [],
         };
@@ -74,7 +85,7 @@ export class ContactsComponent implements OnInit {
         contact.email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
         contact.phone.includes(this.searchQuery);
       const matchesGroup =
-        !this.groupFilter || contact.segment === this.groupFilter;
+        !this.groupFilter || contact.group === this.groupFilter;
       return matchesSearch && matchesGroup;
     });
   }
@@ -92,20 +103,21 @@ export class ContactsComponent implements OnInit {
       lastName: this.newContact.lastName!,
       email: this.newContact.email!,
       phone: this.newContact.phone || '',
-      company: 'uncknown',
-      segment: this.newContact.segment || '',
+      company: this.newContact.company || '',
+      group: this.newContact.group || 'GENERAL',
       status: this.newContact.status || 'LEAD',
       tagIds:
         this.tagsInput
           ?.split(',')
           .map((t) => t.trim())
-          .filter((t) => t !== '') || [],
+          .filter((t) => t !== '' && !isNaN(Number(t)))
+          .map((t) => Number(t)) || [],
     };
 
     this.contactStore.addContact(contact);
   }
 
-  deleteContact(id: string): void {
+  deleteContact(id: number): void {
     this.deleteTargetId = id;
     this.showDeleteConfirm = true;
   }
@@ -114,7 +126,13 @@ export class ContactsComponent implements OnInit {
     if (this.deleteTargetId) {
       this.contactStore.removeContact(this.deleteTargetId);
       // Reload current page after delete
-      setTimeout(() => this.contactStore.loadContacts({ page: this.contactStore.currentPage() }), 300);
+      setTimeout(
+        () =>
+          this.contactStore.loadContacts({
+            page: this.contactStore.currentPage(),
+          }),
+        300,
+      );
     }
     this.cancelDelete();
   }
@@ -197,9 +215,13 @@ export class ContactsComponent implements OnInit {
       email: item.email || '',
       phone: item.phone || item.telephone || '',
       company: item.company || item.entreprise || '',
-      segment: item.segment || item.group || 'GENERAL',
-      status: item.status || item.type || 'LEAD',
-      tagIds: Array.isArray(item.tagIds) ? item.tags : [],
+      group: (item.group || item.segment || 'GENERAL').toUpperCase(),
+      status: (item.status || item.type || 'LEAD').toUpperCase(),
+      tagIds: Array.isArray(item.tags)
+        ? item.tags
+            .filter((t: any) => !isNaN(Number(t)))
+            .map((t: any) => Number(t))
+        : [],
     }));
   }
 
@@ -224,10 +246,14 @@ export class ContactsComponent implements OnInit {
         email: row['email'] || '',
         phone: row['phone'] || row['telephone'] || '',
         company: row['company'] || row['entreprise'] || '',
-        segment: row['segment'] || row['group'] || 'GENERAL',
+        group: row['group'] || 'GENERAL',
         status: row['status'] || row['type'] || 'LEAD',
         tagIds: row['tags']
-          ? row['tags'].split(';').map((t: string) => t.trim())
+          ? row['tags']
+              .split(';')
+              .map((t: string) => t.trim())
+              .filter((t: string) => t !== '' && !isNaN(Number(t)))
+              .map((t: string) => Number(t))
           : [],
       };
     });
@@ -253,10 +279,14 @@ export class ContactsComponent implements OnInit {
         email: row['email'] || '',
         phone: row['phone'] || row['telephone'] || '',
         company: row['company'] || row['entreprise'] || '',
-        segment: row['segment'] || row['group'] || 'GENERAL',
+        group: row['group'] || 'GENERAL',
         status: row['status'] || row['type'] || 'LEAD',
         tagIds: row['tags']
-          ? row['tags'].split(';').map((t: string) => t.trim())
+          ? row['tags']
+              .split(';')
+              .map((t: string) => t.trim())
+              .filter((t: string) => t !== '' && !isNaN(Number(t)))
+              .map((t: string) => Number(t))
           : [],
       };
     });

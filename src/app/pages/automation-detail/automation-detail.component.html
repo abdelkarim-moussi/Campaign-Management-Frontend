@@ -54,15 +54,6 @@
       Visual Builder
     </button>
     <button
-      (click)="setTab('executions')"
-      [class]="
-        'tab-btn ' +
-        (activeTab() === 'executions' ? 'tab-btn-active' : 'tab-btn-inactive')
-      "
-    >
-      Live Monitoring
-    </button>
-    <button
       (click)="setTab('stats')"
       [class]="
         'tab-btn ' +
@@ -221,9 +212,7 @@
                       class="p-1.5 hover:bg-gray-100 rounded-sm disabled:opacity-20 transition-colors"
                       title="Move Up"
                     >
-                      <span class="material-icons text-sm"
-                        >keyboard_arrow_up</span
-                      >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
                     </button>
                     <button
                       (click)="moveAction(i, 'down')"
@@ -231,9 +220,7 @@
                       class="p-1.5 hover:bg-gray-100 rounded-sm disabled:opacity-20 transition-colors"
                       title="Move Down"
                     >
-                      <span class="material-icons text-sm"
-                        >keyboard_arrow_down</span
-                      >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                     <button
                       (click)="removeAction(i)"
@@ -282,160 +269,7 @@
     </div>
   }
 
-  <!-- Tab Content: Executions -->
-  @if (activeTab() === "executions") {
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 min-h-150">
-      <!-- Executions List -->
-      <div
-        class="bg-surface border border-border shadow-soft self-start overflow-hidden"
-      >
-        <div
-          class="px-6 py-4 border-b border-border bg-gray-50/50 flex items-center justify-between"
-        >
-          <span
-            class="text-[10px] font-black text-text-muted uppercase tracking-widest"
-            >Active Enrollments</span
-          >
-          <span class="text-[10px] font-bold text-primary"
-            >{{ store.executions().length }} Total</span
-          >
-        </div>
-        <table class="w-full text-left">
-          <thead
-            class="bg-gray-100/30 border-b border-border text-[9px] uppercase font-black text-text-muted tracking-widest"
-          >
-            <tr>
-              <th class="px-6 py-4">Status</th>
-              <th class="px-6 py-4">Subscriber</th>
-              <th class="px-6 py-4 text-right">Started</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-border text-xs">
-            @for (ex of store.executions(); track ex.id) {
-              <tr
-                (click)="viewLogs(ex.id)"
-                [class]="
-                  'cursor-pointer hover:bg-gray-50 transition-all ' +
-                  (selectedExecutionId() === ex.id
-                    ? 'bg-primary/5 ring-1 ring-inset ring-primary/20'
-                    : '')
-                "
-              >
-                <td class="px-6 py-4">
-                  <span
-                    [class]="
-                      'px-1.5 py-0.5 rounded-sm text-[8px] font-black uppercase tracking-widest ' +
-                      (ex.status === 'COMPLETED'
-                        ? 'bg-green-100 text-green-700'
-                        : ex.status === 'FAILED'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-blue-100 text-blue-700')
-                    "
-                  >
-                    {{ ex.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <div class="flex flex-col">
-                    <span class="font-bold text-text-dark">{{
-                      ex.contact?.fullName || "Anonymous"
-                    }}</span>
-                    <span class="text-[10px] text-text-muted"
-                      >#{{ ex.id }}</span
-                    >
-                  </div>
-                </td>
-                <td
-                  class="px-6 py-4 text-[10px] font-bold text-text-muted text-right"
-                >
-                  {{ ex.startedAt | date: "MMM d, HH:mm" }}
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="3" class="px-6 py-20 text-center">
-                  <span class="material-icons text-4xl text-gray-200 mb-2"
-                    >history</span
-                  >
-                  <p
-                    class="text-xs text-text-muted font-bold uppercase tracking-widest"
-                  >
-                    No history yet
-                  </p>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
 
-      <!-- Execution Logs (Console) -->
-      <div
-        class="bg-gray-900 rounded-sm shadow-2xl flex flex-col border border-gray-800"
-      >
-        <div
-          class="px-6 py-4 bg-gray-800/50 flex items-center justify-between border-b border-gray-700"
-        >
-          <div class="flex items-center gap-3">
-            <div class="flex gap-1.5">
-              <div class="w-2 h-2 rounded-full bg-red-500/50"></div>
-              <div class="w-2 h-2 rounded-full bg-yellow-500/50"></div>
-              <div class="w-2 h-2 rounded-full bg-green-500/50"></div>
-            </div>
-            <span
-              class="text-white font-black text-[9px] uppercase tracking-[0.2em] ml-2"
-              >Console Output</span
-            >
-          </div>
-          @if (selectedExecutionId()) {
-            <span class="text-primary font-mono text-[10px] font-bold"
-              >SID: {{ selectedExecutionId() }}</span
-            >
-          }
-        </div>
-
-        <div
-          class="grow p-6 font-mono text-[11px] overflow-y-auto max-h-125 custom-scrollbar"
-        >
-          @if (selectedExecutionId()) {
-            @for (log of store.logs(); track log.id) {
-              <div class="log-line">
-                <span class="log-timestamp"
-                  >[{{ log.createdAt | date: "HH:mm:ss" }}]</span
-                >
-                <span
-                  [class]="
-                    'log-status ' +
-                    (log.status === 'SUCCESS'
-                      ? 'text-green-500'
-                      : 'text-red-500')
-                  "
-                >
-                  {{ log.status }}
-                </span>
-                <span class="log-message">{{ log.message }}</span>
-              </div>
-            } @empty {
-              <div class="text-gray-600 italic">Connecting to stream...</div>
-            }
-          } @else {
-            <div
-              class="h-full flex flex-col items-center justify-center text-gray-700 space-y-4 py-20"
-            >
-              <span class="material-icons text-5xl opacity-20">dvr</span>
-              <p
-                class="text-[10px] font-black uppercase tracking-widest opacity-50"
-              >
-                Select an execution to inspect logs
-              </p>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- Tab Content: Stats -->
   @if (activeTab() === "stats") {
     @if (store.stats(); as stats) {
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">

@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
+import { roleGuard } from './guards/role.guard';
+
 
 export const routes: Routes = [
   {
@@ -51,6 +53,8 @@ export const routes: Routes = [
         path: 'users',
         loadComponent: () =>
           import('./pages/users/users.component').then((m) => m.UsersComponent),
+        canActivate: [roleGuard],
+        data: { roles: ['OWNER', 'ADMIN'] },
       },
       {
         path: 'settings',

@@ -53,6 +53,11 @@ export const ContactStore = signalStore(
                     isLoading: false,
                   }),
                 ),
+                catchError((error) => {
+                  toastr.error('Failed to load contacts');
+                  patchState(store, { isLoading: false });
+                  return EMPTY;
+                })
               );
           }),
         ),
@@ -71,13 +76,13 @@ export const ContactStore = signalStore(
 
                 toastr.success('Contact Saved Succefully');
               }),
+              catchError((error) => {
+                toastr.error('Contact Save Failed');
+                patchState(store, { isLoading: false, saveSuccess: false });
+                return EMPTY;
+              })
             ),
           ),
-          catchError((error) => {
-            toastr.error('Contact Save Failed');
-            patchState(store, { isLoading: false, saveSuccess: false });
-            return EMPTY;
-          }),
         ),
       ),
 
@@ -105,7 +110,7 @@ export const ContactStore = signalStore(
         ),
       ),
 
-      updateContact: rxMethod<{ id: string; contact: Partial<Contact> }>(
+      updateContact: rxMethod<{ id: number; contact: Partial<Contact> }>(
         pipe(
           tap(() => patchState(store, { isLoading: true })),
           switchMap(({ id, contact }) =>
@@ -113,7 +118,7 @@ export const ContactStore = signalStore(
               tap((updatedContact) => {
                 patchState(store, (state) => ({
                   contacts: state.contacts.map((c) =>
-                    c.id === id ? updatedContact : c,
+                    Number(c.id) === Number(id) ? updatedContact : c,
                   ),
                   isLoading: false,
                   saveSuccess: true,
@@ -130,7 +135,7 @@ export const ContactStore = signalStore(
         ),
       ),
 
-      removeContact: rxMethod<string>(
+      removeContact: rxMethod<number>(
         pipe(
           tap(() => patchState(store, { isLoading: true })),
           switchMap((id) =>
@@ -150,6 +155,10 @@ export const ContactStore = signalStore(
           ),
         ),
       ),
+
+      resetSaveSuccess() {
+        patchState(store, { saveSuccess: false });
+      },
     }),
   ),
 );

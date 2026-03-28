@@ -14,10 +14,11 @@ import { ContactStore } from '../../stores/contact-store';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
+import { HasRoleDirective } from '../../directives/has-role.directive';
 
 @Component({
     selector: 'app-campaigns',
-    imports: [FormsModule, CommonModule, ConfirmDialogComponent, LoadingOverlayComponent, PaginationComponent],
+    imports: [FormsModule, CommonModule, ConfirmDialogComponent, LoadingOverlayComponent, PaginationComponent, HasRoleDirective],
     templateUrl: './campaigns.component.html',
     styleUrl: './campaigns.component.css',
 })
@@ -65,6 +66,7 @@ export class CampaignsComponent implements OnInit {
             this.filterCampaigns();
 
             if (this.campaignStore.saveSuccess()) {
+                this.campaignStore.resetSaveSuccess();
                 this.campaignStore.loadCampaigns({ page: this.campaignStore.currentPage() });
                 this.resetForm();
             }

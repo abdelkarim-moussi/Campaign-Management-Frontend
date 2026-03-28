@@ -102,7 +102,7 @@ export class CampaignDetailComponent implements OnInit {
 
     getContactName(contactId: number): string {
         const contact = this.allContacts().find(
-            (c) => c.id === String(contactId),
+            (c) => c.id === contactId,
         );
         return contact
             ? `${contact.firstName} ${contact.lastName}`
@@ -111,7 +111,7 @@ export class CampaignDetailComponent implements OnInit {
 
     getContactEmail(contactId: number): string {
         const contact = this.allContacts().find(
-            (c) => c.id === String(contactId),
+            (c) => c.id === contactId,
         );
         return contact ? contact.email : '';
     }
@@ -121,7 +121,7 @@ export class CampaignDetailComponent implements OnInit {
             this.campaignContacts.map((cc) => cc.contactId),
         );
         return this.allContacts().filter(
-            (c) => !existingIds.has(Number(c.id)),
+            (c) => c.id !== undefined && !existingIds.has(c.id),
         );
     }
 

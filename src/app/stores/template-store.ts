@@ -189,6 +189,10 @@ export const TemplateStore = signalStore(
                     ),
                 ),
             ),
+
+            resetSaveSuccess() {
+                patchState(store, { saveSuccess: false });
+            },
         }),
     ),
 );

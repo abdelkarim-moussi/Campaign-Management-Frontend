@@ -10,7 +10,7 @@
         Create and manage your SMS and Email templates
       </p>
     </div>
-    <button
+    <button *appHasRole="['OWNER', 'ADMIN', 'MEMBER']"
       (click)="showCreateForm = !showCreateForm; editingTemplateId = null"
       class="bg-primary text-white px-5 py-2.5 text-sm font-medium hover:bg-primary-hover transition-colors"
     >
@@ -217,14 +217,14 @@
           <div
             class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
           >
-            <button
+            <button *appHasRole="['OWNER', 'ADMIN', 'MEMBER']"
               (click)="startEdit(template)"
               class="text-[11px] text-text-muted hover:text-primary px-2 py-1 border border-border hover:border-primary transition-colors"
             >
               Edit
             </button>
             @if (template.status !== "ACTIVE") {
-              <button
+              <button *appHasRole="['OWNER', 'ADMIN', 'MEMBER']"
                 (click)="activateTemplate(template.id!)"
                 class="text-[11px] text-text-muted hover:text-green-600 px-2 py-1 border border-border hover:border-green-500 transition-colors"
               >
@@ -232,14 +232,14 @@
               </button>
             }
             @if (template.status !== "ARCHIVED") {
-              <button
+              <button *appHasRole="['OWNER', 'ADMIN', 'MEMBER']"
                 (click)="archiveTemplate(template.id!)"
                 class="text-[11px] text-text-muted hover:text-yellow-600 px-2 py-1 border border-border hover:border-yellow-500 transition-colors"
               >
                 Archive
               </button>
             }
-            <button
+            <button *appHasRole="['OWNER', 'ADMIN']"
               (click)="deleteTemplate(template.id!)"
               class="text-[11px] text-text-muted hover:text-danger px-2 py-1 border border-border hover:border-danger transition-colors"
             >

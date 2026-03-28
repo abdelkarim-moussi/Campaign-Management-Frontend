@@ -8,11 +8,13 @@ import {
   WorkflowDto,
   WorkflowTriggerType,
   WorkflowAction,
+  WorkflowActionDto,
   ActionType,
 } from '../../services/automation.service';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { LoadingOverlayComponent } from '../../components/loading-overlay/loading-overlay.component';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
+import { HasRoleDirective } from '../../directives/has-role.directive';
 
 interface ActionFormData {
   type: ActionType | '';
@@ -30,6 +32,7 @@ interface ActionFormData {
     ConfirmDialogComponent,
     LoadingOverlayComponent,
     PaginationComponent,
+    HasRoleDirective,
   ],
   templateUrl: './automation.component.html',
   styleUrl: './automation.component.css',
@@ -130,7 +133,17 @@ export class AutomationComponent implements OnInit {
   createWorkflow(): void {
     this.formSubmitted = true;
     if (!this.isFormValid()) return;
-    this.store.createWorkflow(this.newWorkflow);
+
+    // Capture a snapshot of the form data BEFORE resetting
+    const payload: WorkflowDto = {
+      name: this.newWorkflow.name,
+      description: this.newWorkflow.description,
+      triggerType: this.newWorkflow.triggerType,
+      triggerParams: this.newWorkflow.triggerParams,
+      actions: this.newWorkflow.actions.map(a => ({ ...a })),
+    };
+
+    this.store.createWorkflow(payload);
     this.resetForm();
     this.showCreateForm = false;
   }
@@ -205,7 +218,7 @@ export class AutomationComponent implements OnInit {
   addAction(): void {
     if (!this.newAction.type) return;
 
-    const action: WorkflowAction = {
+    const action: WorkflowActionDto = {
       type: this.newAction.type as ActionType,
       orderIndex: (this.newWorkflow.actions.length || 0) + 1,
       actionParams: this.buildActionParams(),

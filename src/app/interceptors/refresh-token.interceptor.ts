@@ -24,9 +24,10 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (
+        (console.log('Error status:', error.status),
         error.status === 401 &&
-        !req.url.includes('/auth/refresh') &&
-        !req.url.includes('/auth/login')
+          !req.url.includes('/auth/refresh') &&
+          !req.url.includes('/auth/login'))
       ) {
         if (!isRefreshing) {
           isRefreshing = true;
@@ -49,12 +50,14 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
               }),
               catchError((refreshError) => {
                 isRefreshing = false;
+                refreshTokenSubject.next('ERROR');
                 authService.logout();
                 return throwError(() => refreshError);
               }),
             );
           } else {
             isRefreshing = false;
+            refreshTokenSubject.next('ERROR');
             authService.logout();
             return throwError(() => error);
           }
@@ -63,6 +66,9 @@ export const refreshTokenInterceptor: HttpInterceptorFn = (req, next) => {
             filter((token) => token !== null),
             take(1),
             switchMap((token) => {
+              if (token === 'ERROR') {
+                return throwError(() => new Error('Refresh token validation failed'));
+              }
               return next(
                 req.clone({
                   setHeaders: {
