@@ -5,33 +5,34 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+env:
+  DOCKE_IMAGE_NAME: ${{secrets.DOCKERHUB_USERNAME}}/cms-frontend
 
 jobs:
-  ci:
+  build-and-push:
     runs-on: ubuntu-latest
-
     steps:
+      - name: Checkout Code
       - uses: actions/checkout@v4
 
+      - name: Setup Node.js
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "22"
 
       - run: npm install --legacy-peer-deps
 
-      - run: npm rebuild lightningcss
-
       - run: ng build
 
+      - name: Login to DockerHub
       - uses: docker/login-action@v3
-        if: github.event_name == 'push'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Build and Push Docker Image
       - uses: docker/build-push-action@v5
-        if: github.event_name == 'push'
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/campaign-management-frontend:latest
+          tags: ${{env.DOCKE_IMAGE_NAME}}:latest, ${{env.DOCKE_IMAGE_NAME}}:${{ github.sha }}
