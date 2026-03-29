@@ -48,8 +48,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/cms-frontend:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/cms-frontend:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/cms-frontend:latest, ${{ secrets.DOCKERHUB_USERNAME }}/cms-frontend:${{ github.sha }}
