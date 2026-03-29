@@ -1,37 +1,57 @@
 name: CD
+
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
+
 env:
-  DOCKE_IMAGE_NAME: ${{secrets.DOCKERHUB_USERNAME}}/cms-frontend
+  DOCKER_IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/cms-frontend
 
 jobs:
-  build-and-push:
+  ci:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-      - uses: actions/setup-node@v4
+        uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: "npm"
 
-      - run: npm install --legacy-peer-deps
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
 
-      - run: ng build
+      - name: Run Tests
+        run: npm test -- --watch=false --browsers=ChromeHeadless
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: ci
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Login to DockerHub
-      - uses: docker/login-action@v3
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and Push Docker Image
-      - uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{env.DOCKE_IMAGE_NAME}}:latest, ${{env.DOCKE_IMAGE_NAME}}:${{ github.sha }}
+          tags: |
+            ${{ env.DOCKER_IMAGE_NAME }}:latest
+            ${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
