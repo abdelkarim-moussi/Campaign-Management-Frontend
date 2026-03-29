@@ -24,7 +24,7 @@ export class UsersComponent implements OnInit {
   showRoleConfirm = false;
   deleteTargetId: number | null = null;
   roleUpdateTarget: { userId: number, role: string } | null = null;
-  
+
   newUser: Partial<User> = {
     firstName: '',
     lastName: '',
@@ -57,7 +57,7 @@ export class UsersComponent implements OnInit {
     });
   });
 
-  constructor() {}
+  constructor() { }
 
   ngOnInit(): void {
     this.currentUser = this.authService.getUser();
@@ -103,11 +103,12 @@ export class UsersComponent implements OnInit {
   }
 
   canManageUser(user: User): boolean {
-    const meRole = this.currentUser?.role || 'MEMBER';
+    const meRole = (this.currentUser?.role || 'MEMBER').toUpperCase();
+    const userRole = (user.role || '').toUpperCase();
+
     if (meRole === 'OWNER') return true;
     if (meRole === 'ADMIN') {
-        // Admins can't delete Owners
-        return user.role !== 'OWNER';
+      return userRole !== 'OWNER';
     }
     return false;
   }
